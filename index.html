@@ -147,6 +147,22 @@
     margin-bottom: 18px;
   }
   .filters{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .search-box{
+    flex: 1;
+    min-width: 180px;
+    max-width: 280px;
+  }
+  .search-box input{
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
+  }
+  .search-box input::placeholder{ color: var(--ink-soft); }
   .chip{
     border: 1px solid var(--line-strong);
     background: var(--card);
@@ -293,9 +309,61 @@
   @media (max-width: 480px){
     .kpi-row{ grid-template-columns: repeat(2,1fr); }
   }
+
+  #lockOverlay{
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 999;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 20px;
+  }
+  #lockOverlay.hidden{ display:none; }
+  .lock-box{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 28px 26px;
+    width: 100%;
+    max-width: 320px;
+    text-align:center;
+  }
+  .lock-box h2{ font-size: 18px; margin-bottom: 6px; }
+  .lock-box p{ color: var(--ink-soft); font-size: 12.5px; margin: 0 0 16px; }
+  .lock-box input{
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    font-family: inherit;
+  }
+  .lock-box button{
+    width: 100%;
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .lock-box .lock-error{ color: var(--overdue); font-size: 12px; margin-top: 8px; display:none; }
 </style>
 </head>
 <body>
+<div id="lockOverlay">
+  <div class="lock-box">
+    <h2>Acceso privado</h2>
+    <p>Ingresa la contraseña para ver el checklist.</p>
+    <input type="password" id="lockInput" placeholder="Contraseña">
+    <button id="lockSubmit">Entrar</button>
+    <div class="lock-error" id="lockError">Contraseña incorrecta.</div>
+  </div>
+</div>
 <div class="wrap">
   <header>
     <h1>Checklist académico</h1>
@@ -306,6 +374,7 @@
 
   <div class="toolbar">
     <div class="filters" id="filters"></div>
+    <div class="search-box"><input type="text" id="searchInput" placeholder="Buscar tarea..."></div>
     <button class="add-btn" id="toggleAdd">+ Agregar tarea</button>
   </div>
 
@@ -763,6 +832,7 @@ function taskLink(t){
 let tasks = [];
 let habitLogs = {};
 let activeFilters = new Set(COURSES.map(c=>c.id));
+let searchQuery = "";
 let modalGoalId = null;
 let modalYear = new Date().getFullYear();
 let modalMonth = new Date().getMonth();
@@ -1096,7 +1166,14 @@ function taskEl(t){
 }
 
 function renderTasks(){
-  const visible = tasks.filter(t => activeFilters.has(t.course));
+  const q = searchQuery.trim().toLowerCase();
+  const visible = tasks.filter(t => {
+    if(!activeFilters.has(t.course)) return false;
+    if(!q) return true;
+    const info = courseInfo(t.course);
+    const haystack = (t.title + " " + info.label + " " + (COURSE_NAMES[t.course]||"")).toLowerCase();
+    return haystack.includes(q);
+  });
   const pending = visible.filter(t=>!t.completed).sort((a,b)=>{
     if(!a.due && !b.due) return 0;
     if(!a.due) return 1;
@@ -1185,11 +1262,50 @@ async function init(){
   renderFilters();
   setupAddForm();
   setupModal();
+  document.getElementById("searchInput").oninput = (e) => {
+    searchQuery = e.target.value;
+    renderTasks();
+  };
   renderTasks();
   setInterval(renderTasks, 60000);
 }
 
-init();
+const SITE_PASSWORD = "pollo2026";
+
+function unlock(){
+  document.getElementById("lockOverlay").classList.add("hidden");
+  try{ localStorage.setItem("checklist-auth", "ok"); }catch(e){}
+  init();
+}
+
+function setupLock(){
+  try{
+    if(localStorage.getItem("checklist-auth") === "ok"){
+      unlock();
+      return;
+    }
+  }catch(e){}
+
+  const input = document.getElementById("lockInput");
+  const submit = document.getElementById("lockSubmit");
+  const error = document.getElementById("lockError");
+
+  const tryUnlock = () => {
+    if(input.value === SITE_PASSWORD){
+      unlock();
+    }else{
+      error.style.display = "block";
+      input.value = "";
+      input.focus();
+    }
+  };
+
+  submit.onclick = tryUnlock;
+  input.onkeydown = (e) => { if(e.key === "Enter") tryUnlock(); };
+  input.focus();
+}
+
+setupLock();
 </script>
 </body>
 </html>
