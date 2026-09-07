@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checklist académico</title>
+<style>
+  :root{
+    --bg: #F5F6F2;
+    --card: #FFFFFF;
+    --ink: #182226;
+    --ink-soft: #5B6B70;
+    --line: #E2E3DC;
+    --line-strong: #CBCDC3;
+    --accent: #0F6B5C;
+    --accent-soft: #E1F0EB;
+    --overdue: #B4402F;
+    --overdue-soft: #FBE9E5;
+    --soon: #B3781A;
+    --soon-soft: #FBF0DD;
+    --done: #8C9192;
+
+    --c-hrm540: #B3781A;
+    --c-hrm540-soft: #FBF0DD;
+    --c-is531: #2E6C8E;
+    --c-is531-soft: #E4EEF3;
+    --c-is550: #3F7D5C;
+    --c-is550-soft: #E6F1EA;
+    --c-is551: #A44B63;
+    --c-is551-soft: #F5E6EA;
+    --c-is560: #A6482F;
+    --c-is560-soft: #F5E5DF;
+    --c-is590r: #1F7A6C;
+    --c-is590r-soft: #E1F1EC;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family: -apple-system, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 32px 24px 80px;
+  }
+  h1,h2,h3{
+    font-family: Georgia, "Iowan Old Style", "Times New Roman", serif;
+    font-weight: 600;
+    margin: 0;
+  }
+  .wrap{ max-width: 1080px; margin: 0 auto; }
+  header{ margin-bottom: 28px; }
+  header h1{ font-size: 28px; letter-spacing: -0.01em; }
+  header p{ color: var(--ink-soft); margin: 6px 0 0; font-size: 14px; }
+
+  .kpi-row{
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .kpi{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 12px;
+    min-height: 86px;
+    display:flex;
+    flex-direction:column;
+    justify-content: space-between;
+  }
+  .kpi.main{
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .kpi .num{ font-size: 22px; font-weight: 600; font-family: Georgia, serif; }
+  .kpi .lbl{ font-size: 11.5px; color: var(--ink-soft); line-height: 1.3; }
+  .kpi.main .lbl{ color: rgba(255,255,255,0.82); }
+  .kpi.goal{
+    border-color: var(--line);
+    color: var(--ink-soft);
+    cursor: pointer;
+    text-align: left;
+  }
+  .kpi.goal:hover{ border-color: var(--line-strong); background: #FBFBF8; }
+  .kpi.goal .top{ display:flex; justify-content:space-between; align-items:flex-start; }
+  .kpi.goal .icon{ font-size: 16px; }
+  .kpi.goal .count{ font-size: 12px; font-weight: 600; color: var(--ink); }
+  .kpi.goal .lbl{ font-size: 11px; line-height: 1.25; margin-top: 6px; }
+
+  .modal-overlay{
+    display:none;
+    position: fixed;
+    inset: 0;
+    background: rgba(24,34,38,0.45);
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal{
+    background: var(--card);
+    border-radius: 14px;
+    padding: 22px;
+    width: 100%;
+    max-width: 380px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  .modal .modal-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
+  .modal .modal-title{ font-size: 17px; display:flex; align-items:center; gap:8px; }
+  .modal .modal-close{ background:none; border:none; font-size:18px; color: var(--ink-soft); cursor:pointer; }
+  .modal .modal-target{ font-size: 12.5px; color: var(--ink-soft); margin: 2px 0 4px; }
+  .modal .modal-note{ font-size: 12px; color: var(--ink-soft); margin-bottom: 16px; line-height:1.4; }
+  .modal .cal-nav{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px; }
+  .modal .cal-nav button{ background:none; border:1px solid var(--line-strong); border-radius:6px; cursor:pointer; padding:3px 9px; font-size:13px; color: var(--ink-soft); }
+  .modal .cal-nav .cal-month{ font-size: 13px; font-weight: 600; }
+  .cal-grid{ display:grid; grid-template-columns: repeat(7,1fr); gap:5px; }
+  .cal-dow{ font-size: 10px; color: var(--ink-soft); text-align:center; }
+  .cal-day{
+    aspect-ratio: 1;
+    display:flex; align-items:center; justify-content:center;
+    border-radius: 7px;
+    font-size: 12px;
+    cursor: pointer;
+    border: 1px solid var(--line);
+    color: var(--ink-soft);
+  }
+  .cal-day.empty{ visibility:hidden; cursor:default; }
+  .cal-day.done{ background: var(--accent); border-color: var(--accent); color:#fff; font-weight:600; }
+  .cal-day.today{ box-shadow: 0 0 0 1.5px var(--ink) inset; }
+  .modal .cal-summary{
+    display:flex; justify-content:space-between;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+  }
+  .modal .cal-summary b{ font-family: Georgia, serif; font-size: 16px; }
+
+  .toolbar{
+    display:flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .filters{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .chip{
+    border: 1px solid var(--line-strong);
+    background: var(--card);
+    border-radius: 999px;
+    padding: 6px 13px;
+    font-size: 12.5px;
+    cursor: pointer;
+    color: var(--ink-soft);
+    user-select: none;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .chip .dot{ width:7px; height:7px; border-radius:50%; }
+  .chip.active{
+    background: var(--ink);
+    border-color: var(--ink);
+    color: #fff;
+  }
+  .chip.active .dot{ filter: brightness(1.6); }
+
+  button.add-btn{
+    background: var(--ink);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  button.add-btn:hover{ opacity:0.9; }
+
+  .add-form{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 22px;
+    display: none;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .add-form.open{ display: grid; }
+  .add-form .full{ grid-column: 1 / -1; }
+  .add-form label{ font-size: 11.5px; color: var(--ink-soft); display:block; margin-bottom: 4px; }
+  .add-form input, .add-form select{
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 7px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
+  }
+  .add-form .actions{ grid-column: 1 / -1; display:flex; gap:10px; justify-content:flex-end; }
+  .add-form button{
+    border: none;
+    border-radius: 7px;
+    padding: 8px 16px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .add-form .save{ background: var(--accent); color:#fff; }
+  .add-form .cancel{ background: transparent; color: var(--ink-soft); border: 1px solid var(--line-strong); }
+
+  .section-title{
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-transform: none;
+    margin: 26px 0 10px;
+    display:flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .section-title span.count{ font-weight: 600; color: var(--ink); }
+
+  .task-list{ display:flex; flex-direction:column; gap:8px; }
+  .task{
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display:flex;
+    align-items:center;
+    gap: 12px;
+  }
+  .task.overdue{ border-color: var(--overdue); }
+  .task input[type=checkbox]{
+    width: 19px; height: 19px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    flex-shrink:0;
+  }
+  .task .course-tag{
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink:0;
+  }
+  .task .body{ flex: 1; min-width: 0; cursor: pointer; }
+  .task .title{ font-size: 14px; line-height:1.3; }
+  .task .title:hover{ text-decoration: underline; }
+  .task .meta{ font-size: 11.5px; color: var(--ink-soft); margin-top:2px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .task .type-tag{
+    font-size: 10px;
+    color: var(--ink-soft);
+    border: 1px solid var(--line-strong);
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+  .task .countdown{
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 92px;
+    text-align: right;
+  }
+  .task .countdown.overdue-text{ color: var(--overdue); }
+  .task .countdown.soon-text{ color: var(--soon); }
+  .task .countdown.normal-text{ color: var(--ink-soft); }
+  .task .del{
+    background:none; border:none; color: var(--line-strong); cursor:pointer; font-size: 15px; flex-shrink:0; padding: 2px 4px;
+  }
+  .task .del:hover{ color: var(--overdue); }
+
+  .completed .task{ opacity: 0.55; }
+  .completed .task .title{ text-decoration: line-through; }
+
+  .empty{
+    color: var(--ink-soft);
+    font-size: 13px;
+    padding: 20px 0;
+    text-align:center;
+  }
+
+  @media (max-width: 760px){
+    .kpi-row{ grid-template-columns: repeat(4,1fr); }
+  }
+  @media (max-width: 480px){
+    .kpi-row{ grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Checklist académico</h1>
+    <p>MISM y MBA · BYU · Otoño 2026</p>
+  </header>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <div class="toolbar">
+    <div class="filters" id="filters"></div>
+    <button class="add-btn" id="toggleAdd">+ Agregar tarea</button>
+  </div>
+
+  <div class="add-form" id="addForm">
+    <div>
+      <label>Clase</label>
+      <select id="fCourse"></select>
+    </div>
+    <div>
+      <label>Tipo</label>
+      <select id="fType">
+        <option value="deliverable">Entrega</option>
+        <option value="reading">Lectura / preparación</option>
+      </select>
+    </div>
+    <div class="full">
+      <label>Título</label>
+      <input type="text" id="fTitle" placeholder="Nombre de la tarea">
+    </div>
+    <div>
+      <label>Fecha</label>
+      <input type="date" id="fDate">
+    </div>
+    <div>
+      <label>Hora (opcional)</label>
+      <input type="time" id="fTime">
+    </div>
+    <div class="actions">
+      <button class="cancel" id="cancelAdd">Cancelar</button>
+      <button class="save" id="saveAdd">Guardar tarea</button>
+    </div>
+  </div>
+
+  <div class="section-title">Pendientes <span class="count" id="pendingCount">0</span></div>
+  <div class="task-list" id="pendingList"></div>
+
+  <div class="section-title">Completadas <span class="count" id="completedCount">0</span></div>
+  <div class="task-list completed" id="completedList"></div>
+</div>
+
+<div class="modal-overlay" id="goalModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title"><span id="mIcon"></span><span id="mLabel"></span></div>
+      <button class="modal-close" id="mClose">&times;</button>
+    </div>
+    <div class="modal-target" id="mTarget"></div>
+    <div class="modal-note" id="mNote"></div>
+    <div class="cal-nav">
+      <button id="mPrev">&larr;</button>
+      <span class="cal-month" id="mMonthLabel"></span>
+      <button id="mNext">&rarr;</button>
+    </div>
+    <div class="cal-grid" id="mDow"></div>
+    <div class="cal-grid" id="mGrid" style="margin-top:5px;"></div>
+    <div class="cal-summary">
+      <div>Este mes: <b id="mMonthCount">0</b></div>
+      <div>Esta semana: <b id="mWeekCount">0</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="taskModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-head">
+      <div class="modal-title" id="tTitle" style="font-size:16px;"></div>
+      <button class="modal-close" id="tClose">&times;</button>
+    </div>
+    <div class="modal-target" id="tCourse"></div>
+    <div class="modal-note" id="tDue" style="margin-bottom:14px;"></div>
+    <a id="tLink" href="#" target="_blank" rel="noopener" class="add-form save" style="display:inline-block; text-decoration:none; text-align:center; padding:9px 18px;">Abrir enlace</a>
+  </div>
+</div>
+
+<script>
+const COURSES = [
+  { id:"HRM540", label:"HRM 540", color:"var(--c-hrm540)", soft:"var(--c-hrm540-soft)" },
+  { id:"IS531", label:"IS 531", color:"var(--c-is531)", soft:"var(--c-is531-soft)" },
+  { id:"IS550", label:"IS 550", color:"var(--c-is550)", soft:"var(--c-is550-soft)" },
+  { id:"IS551", label:"IS 551", color:"var(--c-is551)", soft:"var(--c-is551-soft)" },
+  { id:"IS560", label:"IS 560", color:"var(--c-is560)", soft:"var(--c-is560-soft)" },
+  { id:"IS590R", label:"IS 590R", color:"var(--c-is590r)", soft:"var(--c-is590r-soft)" },
+];
+
+const SEED = [
+["HRM540","Student Info Sheet","deliverable","2026-09-08T09:30"],
+["HRM540","Case Write-Up 1: Speed Ventures","deliverable","2026-09-08T09:30"],
+["HRM540","Insight Sign Up","deliverable","2026-09-08T09:30"],
+["HRM540","Participation Report #1","deliverable","2026-09-10T09:30"],
+["HRM540","Application Question #1: Personality and Fit","deliverable","2026-09-10T09:30"],
+["HRM540","Participation Report #2","deliverable","2026-09-15T09:30"],
+["HRM540","Application Question #2: Decision Making","deliverable","2026-09-15T09:30"],
+["HRM540","Team Social Summary","deliverable","2026-09-17T09:30"],
+["HRM540","Case Write-Up 2: Hausser Foods","deliverable","2026-09-17T09:30"],
+["HRM540","Team Charter","deliverable","2026-09-17T09:30"],
+["HRM540","Participation Report #3","deliverable","2026-09-17T09:30"],
+["HRM540","Case Write-Up 3: Trouble at Tessei","deliverable","2026-09-22T09:30"],
+["HRM540","Why Work?","deliverable","2026-09-22T09:30"],
+["HRM540","Participation Report #4","deliverable","2026-09-22T09:30"],
+["HRM540","Participation Report #5","deliverable","2026-09-24T09:30"],
+["HRM540","Application Question #3: Finding or Creating Calling","deliverable","2026-09-24T09:30"],
+["HRM540","Client Contact Info & Topic","deliverable","2026-09-29T09:30"],
+["HRM540","Participation Report #6","deliverable","2026-09-29T09:30"],
+["HRM540","Application Question #4: Power and Influence","deliverable","2026-09-29T09:30"],
+["HRM540","Participation Report #7","deliverable","2026-10-01T09:30"],
+["HRM540","Application Question #5: Impostor Phenomenon","deliverable","2026-10-06T09:30"],
+["HRM540","Participation Report #8","deliverable","2026-10-08T09:30"],
+["HRM540","Application Question #6: Negotiation","deliverable","2026-10-08T09:30"],
+["HRM540","Case Write-Up 4: Claude Grunitzky","deliverable","2026-10-13T09:30"],
+["HRM540","Participation Report #9","deliverable","2026-10-13T09:30"],
+["HRM540","Signed Engagement Letter","deliverable","2026-10-15T09:30"],
+["HRM540","Participation Report #10","deliverable","2026-10-15T09:30"],
+["HRM540","Application Question #7: Foundations of Teams","deliverable","2026-10-15T09:30"],
+["HRM540","Case Write Up #5: Blue Angels","deliverable","2026-10-20T09:30"],
+["HRM540","Participation Report #11","deliverable","2026-10-20T09:30"],
+["HRM540","Participation Report #12","deliverable","2026-10-22T09:30"],
+["HRM540","Application Question #8: Leadership","deliverable","2026-10-22T09:30"],
+["HRM540","Participation Report #13","deliverable","2026-10-27T09:30"],
+["HRM540","Application Question #9: Unity in Diversity","deliverable","2026-10-27T09:30"],
+["HRM540","Case Write-Up 6: Mary Graffin","deliverable","2026-10-29T09:30"],
+["HRM540","Participation Report #14","deliverable","2026-10-29T09:30"],
+["HRM540","Participation Report #15","deliverable","2026-11-03T09:30"],
+["HRM540","Application Question #10: Team Decision Making","deliverable","2026-11-03T09:30"],
+["HRM540","Participation Report #16","deliverable","2026-11-05T09:30"],
+["HRM540","Case Write-Up 7: Merck","deliverable","2026-11-10T09:30"],
+["HRM540","Case Write-Up 8: Microsoft Reorg","deliverable","2026-11-12T09:30"],
+["HRM540","Participation Report #17","deliverable","2026-11-12T09:30"],
+["HRM540","Case Write-Up 9: Southwest","deliverable","2026-11-17T09:30"],
+["HRM540","Participation Report #18","deliverable","2026-11-17T09:30"],
+["HRM540","Case Write Up #10: Enron","deliverable","2026-11-19T09:30"],
+["HRM540","Participation Report #19","deliverable","2026-11-19T09:30"],
+["HRM540","Change Project","deliverable","2026-11-20T23:59"],
+["HRM540","Participation Report #20","deliverable","2026-11-24T23:59"],
+["HRM540","Case Write-Up 11: Peter Browning","deliverable","2026-12-01T09:30"],
+["HRM540","Application Question #11: Happiness","deliverable","2026-12-03T09:30"],
+["HRM540","Participation Report #21","deliverable","2026-12-03T09:30"],
+["HRM540","Team Project Paper","deliverable","2026-12-08T09:30"],
+["HRM540","Client Evaluation","deliverable","2026-12-08T09:30"],
+["HRM540","Participation Report #22","deliverable","2026-12-08T09:30"],
+["HRM540","Participation Report #23","deliverable","2026-12-10T09:30"],
+["HRM540","Participation Report #24","deliverable","2026-12-11T23:59"],
+["HRM540","Team Peer Evaluation","deliverable","2026-12-11T23:59"],
+["HRM540","Individual Project Score","deliverable",null],
+["HRM540","Participation Score","deliverable",null],
+
+["IS531","Syllabus Quiz 1","reading","2026-09-11T23:59"],
+["IS531","Professional Interview - Career","deliverable","2026-09-18T23:59"],
+["IS531","Hardware Proposal Assignment","deliverable","2026-09-18T23:59"],
+["IS531","Chapter 1 Quiz","reading","2026-09-18T23:59"],
+["IS531","Ch 9 and Ch 10 Quiz","reading","2026-09-18T23:59"],
+["IS531","Lab 2 Install OS","deliverable","2026-09-18T23:59"],
+["IS531","Lab 2 Operating System Install Quiz v2","deliverable","2026-09-18T23:59"],
+["IS531","Guest Speaker Quiz","reading","2026-10-02T23:59"],
+["IS531","Flash HW Completion Reporting Quiz","deliverable","2026-10-02T23:59"],
+["IS531","Ch 3 Reading Quiz","reading",null],
+["IS531","Lab 1 Hardware","deliverable",null],
+["IS531","Ch 4 Reading Quiz","reading",null],
+
+["IS550","Review 3 previous projects","deliverable","2026-09-12T23:59"],
+["IS550","Brainstorm 3 Ideas","deliverable","2026-09-19T23:59"],
+["IS550","Choose your team and project","deliverable","2026-10-03T23:59"],
+["IS550","Lean Canvas","deliverable","2026-10-10T23:59"],
+["IS550","Meet with professor","deliverable","2026-10-17T23:59"],
+["IS550","User Research Results","deliverable","2026-10-24T23:59"],
+["IS550","Mockups and branding","deliverable","2026-10-31T23:59"],
+["IS550","Peer feedback #1","deliverable","2026-11-07T23:59"],
+["IS550","Tech Stack","deliverable","2026-11-07T23:59"],
+["IS550","Project Plan","deliverable","2026-11-21T23:59"],
+["IS550","Project Pitch Materials","deliverable","2026-11-28T23:59"],
+["IS550","Project Pitch in class","deliverable","2026-12-01T23:59"],
+["IS550","Peer feedback #2","deliverable","2026-12-12T23:59"],
+["IS550","Rollins Center","deliverable","2026-12-12T23:59"],
+
+["IS551","Prep: Leer el Syllabus","reading","2026-09-02T00:00"],
+["IS551","Prep: Unirse al Slack de UX","reading","2026-09-02T00:00"],
+["IS551","Prep: Sample Design Principles","reading","2026-09-02T00:00"],
+["IS551","Participation - Wed Sep 2","deliverable","2026-09-02T00:00"],
+["IS551","Student Information Survey","deliverable","2026-09-02T23:59"],
+["IS551","Universal Design Principles Quiz","reading","2026-09-05T23:59"],
+["IS551","Prep: Affordances, Signifiers, and Mapping","reading","2026-09-09T00:00"],
+["IS551","Participation - Wed Sep 9","deliverable","2026-09-09T00:00"],
+["IS551","Prep: Discovery Research","reading","2026-09-14T00:00"],
+["IS551","Prep: Experience Mapping","reading","2026-09-14T00:00"],
+["IS551","Participation - Mon Sep 14","deliverable","2026-09-14T00:00"],
+["IS551","Prep: Common Human Biases","reading","2026-09-21T00:00"],
+["IS551","Participation - Mon Sep 21","deliverable","2026-09-21T00:00"],
+["IS551","Prep: Prototyping Concepts","reading","2026-09-28T00:00"],
+["IS551","Participation - Mon Sep 28","deliverable","2026-09-28T00:00"],
+["IS551","Prep: Don't Make Me Think, Ch. 1 y 6","reading","2026-09-30T00:00"],
+["IS551","Participation - Wed Sep 30","deliverable","2026-09-30T00:00"],
+["IS551","Low-Fidelity Prototype (top-level screens en Figma)","deliverable","2026-10-05T00:00"],
+["IS551","Prep: Conventions","reading","2026-10-05T00:00"],
+["IS551","Participation - Mon Oct 5","deliverable","2026-10-05T00:00"],
+["IS551","Prep: Visibility of System Status","reading","2026-10-07T00:00"],
+["IS551","Prep: Recognition over Recall","reading","2026-10-07T00:00"],
+["IS551","Participation - Wed Oct 7","deliverable","2026-10-07T00:00"],
+["IS551","Participation - Mon Oct 12","deliverable","2026-10-12T00:00"],
+["IS551","Participation - Wed Oct 14","deliverable","2026-10-14T00:00"],
+["IS551","Participation - Mon Oct 19","deliverable","2026-10-19T00:00"],
+["IS551","Prep: Survey Validity","reading","2026-10-21T00:00"],
+["IS551","Prep: Don't Make Me Think, Ch. 8","reading","2026-10-21T00:00"],
+["IS551","Participation - Wed Oct 21","deliverable","2026-10-21T00:00"],
+["IS551","Participation - Mon Oct 26 (llevar research + prototipo)","deliverable","2026-10-26T00:00"],
+["IS551","Participation - Wed Oct 28","deliverable","2026-10-28T00:00"],
+["IS551","Participation - Mon Nov 2","deliverable","2026-11-02T00:00"],
+["IS551","Prep: WCAG Accessibility Standards","reading","2026-11-09T00:00"],
+["IS551","Participation - Mon Nov 9","deliverable","2026-11-09T00:00"],
+["IS551","Prep: descargar datos de encuesta en UXtweak","reading","2026-11-11T00:00"],
+["IS551","Participation - Wed Nov 11","deliverable","2026-11-11T00:00"],
+["IS551","Prep: Robinhood Redesign","reading","2026-11-16T00:00"],
+["IS551","Participation - Mon Nov 16","deliverable","2026-11-16T00:00"],
+["IS551","Prep: Leading Geeks, resumen del libro","reading","2026-11-18T00:00"],
+["IS551","Prep: ejercicio método STATE con ChatGPT","reading","2026-11-18T00:00"],
+["IS551","Participation - Wed Nov 18","deliverable","2026-11-18T00:00"],
+["IS551","Participation - Mon Nov 30 (Final Presentations)","deliverable","2026-11-30T00:00"],
+["IS551","Participation - Wed Dec 2 (Final Presentations)","deliverable","2026-12-02T00:00"],
+["IS551","Participation - Mon Dec 7","deliverable","2026-12-07T00:00"],
+["IS551","Participation - Wed Dec 9","deliverable","2026-12-09T00:00"],
+
+["IS560","Prayer Survey","deliverable","2026-09-05T23:59"],
+["IS560","Join Our Slack Workspace","deliverable","2026-09-05T23:59"],
+["IS560","Pre-Class Quiz Sep 9","deliverable","2026-09-09T08:05"],
+["IS560","The Great Pi Test (en clase)","deliverable","2026-09-09T12:00"],
+["IS560","Security Review Roundtable Game (en clase)","deliverable","2026-09-09T12:20"],
+["IS560","Kali Linux Setup","deliverable","2026-09-12T23:59"],
+["IS560","Diceware (en clase)","deliverable","2026-09-14T12:00"],
+["IS560","Lab - Password Cracking","deliverable","2026-09-19T23:59"],
+["IS560","Metasploit Lab","deliverable","2026-09-26T23:59"],
+["IS560","Lab - SQLi","deliverable","2026-10-03T23:59"],
+["IS560","Pen Test Project","deliverable","2026-10-17T23:59"],
+["IS560","Social Engineering Lab","deliverable","2026-10-24T23:59"],
+["IS560","Lock Picking (en clase)","deliverable","2026-10-26T12:15"],
+["IS560","Online Midterm 1","deliverable","2026-10-31T23:59"],
+["IS560","Physical Security Lab","deliverable","2026-10-31T23:59"],
+["IS560","IoT Activity (en clase)","deliverable","2026-11-02T23:59"],
+["IS560","Malware Analysis Lab (Quiz)","deliverable","2026-11-07T23:59"],
+["IS560","Network Security Monitoring and Security Onion Lab","deliverable","2026-11-14T23:59"],
+["IS560","War Room Kickoff Attendance","deliverable","2026-11-16T12:15"],
+["IS560","War Room Assignment Due","deliverable","2026-11-21T23:59"],
+["IS560","Business Key Terms (en clase)","deliverable","2026-11-30T23:59"],
+["IS560","War Room Video Feedback","deliverable","2026-12-03T23:59"],
+["IS560","Security Escape Room","deliverable","2026-12-09T23:59"],
+["IS560","Student Ratings","deliverable","2026-12-10T23:59"],
+["IS560","Online Final Exam","deliverable","2026-12-16T23:59"],
+
+["IS590R","Team memo 1: Semantic search","deliverable","2026-09-16T23:59"],
+["IS590R","Team memo 2: RAG","deliverable","2026-09-28T23:59"],
+["IS590R","Team memo 3: Intelligent document analysis","deliverable","2026-10-05T23:59"],
+["IS590R","Team memo 4: Fine tuning 1","deliverable","2026-10-12T23:59"],
+["IS590R","Team memo 5: Multi-agent","deliverable","2026-11-02T23:59"],
+["IS590R","Team memo 6: Evaluation","deliverable","2026-11-09T23:59"],
+["IS590R","Team memo 7: Security","deliverable","2026-11-18T23:59"],
+["IS590R","Team memo 8: Fine tuning 2","deliverable","2026-11-30T23:59"],
+["IS590R","Final presentation y deliverables","deliverable","2026-12-08T23:59"],
+["IS590R","Preparación para el examen final","reading","2026-12-12T23:59"],
+];
+
+function seedTasks(){
+  return SEED.map((t,i)=>({
+    id: "seed-"+i,
+    course: t[0],
+    title: t[1],
+    type: t[2],
+    due: t[3],
+    completed: false
+  }));
+}
+
+const GOALS = [
+  { id:"gym", icon:"🏋️", label:"Gym", target:"4-5 / semana", weeklyTarget:5,
+    note:"Lun-jue en la tarde si hay energía. Viernes en la mañana. Un día de fin de semana." },
+  { id:"scriptures", icon:"✝️", label:"Escrituras", target:"7 / semana", weeklyTarget:7,
+    note:"Todos los días, sin excepciones. Es el hábito más sólido, no lo sueltes." },
+  { id:"meals", icon:"🍽️", label:"Comidas a tiempo", target:"7 / semana", weeklyTarget:7,
+    note:"Desayuno 7:30am · almuerzo 12pm · cena 6pm. El domingo preparas lo de la semana." },
+  { id:"work", icon:"💼", label:"Trabajo", target:"10-15 hrs / semana", weeklyTarget:5,
+    note:"Bloques fijos en el calendario, como si fueran clases, no dispersos." },
+  { id:"skincare", icon:"✨", label:"Skincare", target:"3-4 / semana", weeklyTarget:4,
+    note:"Rutina completa 3-4 días. Los demás: limpieza básica. Nada de cero." },
+];
+
+const COURSE_NAMES = {
+  HRM540: "HRM 540: Organizational Effectiveness",
+  IS531: "IS 531: Enterprise Infrastructure",
+  IS550: "IS 550: MISM Capstone Introduction",
+  IS551: "IS 551: User Experience Design",
+  IS560: "IS 560: Information Security Management",
+  IS590R: "IS 590R: AI and Agentic Systems",
+};
+
+const COURSE_HOME = {
+  HRM540: "https://byu.instructure.com/courses/38761/assignments",
+  IS531: "https://byu.instructure.com/courses/36766/assignments",
+  IS550: "https://byu.instructure.com/courses/36765/assignments",
+  IS551: "https://byu.instructure.com/courses/36067",
+  IS560: "https://byu.instructure.com/courses/37070/assignments",
+  IS590R: "https://learningsuite.byu.edu/.tb2m/cid-0yPsMqHgJvsg/student/home",
+};
+
+function normKey(s){
+  return s.toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+const RAW_LINKS = [
+["Student Info Sheet","https://byu.instructure.com/courses/38761/assignments/1462976"],
+["Case Write-Up 1: Speed Ventures","https://byu.instructure.com/courses/38761/assignments/1462938"],
+["Insight Sign Up","https://byu.instructure.com/courses/38761/assignments/1462950"],
+["Participation Report #1","https://byu.instructure.com/courses/38761/assignments/1462952"],
+["Application Question #1: Personality and Fit","https://byu.instructure.com/courses/38761/assignments/1462926"],
+["Participation Report #2","https://byu.instructure.com/courses/38761/assignments/1462961"],
+["Application Question #2: Decision Making","https://byu.instructure.com/courses/38761/assignments/1462927"],
+["Team Social Summary","https://byu.instructure.com/courses/38761/assignments/1462980"],
+["Case Write-Up 2: Hausser Foods","https://byu.instructure.com/courses/38761/assignments/1462939"],
+["Team Charter","https://byu.instructure.com/courses/38761/assignments/1462977"],
+["Participation Report #3","https://byu.instructure.com/courses/38761/assignments/1462966"],
+["Case Write-Up 3: Trouble at Tessei","https://byu.instructure.com/courses/38761/assignments/1462940"],
+["Why Work?","https://byu.instructure.com/courses/38761/assignments/1462981"],
+["Participation Report #4","https://byu.instructure.com/courses/38761/assignments/1462967"],
+["Participation Report #5","https://byu.instructure.com/courses/38761/assignments/1462968"],
+["Application Question #3: Finding or Creating Calling","https://byu.instructure.com/courses/38761/assignments/1462928"],
+["Client Contact Info & Topic","https://byu.instructure.com/courses/38761/assignments/1462947"],
+["Participation Report #6","https://byu.instructure.com/courses/38761/assignments/1462969"],
+["Application Question #4: Power and Influence","https://byu.instructure.com/courses/38761/assignments/1462929"],
+["Participation Report #7","https://byu.instructure.com/courses/38761/assignments/1462970"],
+["Application Question #5: Impostor Phenomenon","https://byu.instructure.com/courses/38761/assignments/1470881"],
+["Participation Report #8","https://byu.instructure.com/courses/38761/assignments/1462951"],
+["Application Question #6: Negotiation","https://byu.instructure.com/courses/38761/assignments/1462930"],
+["Case Write-Up 4: Claude Grunitzky","https://byu.instructure.com/courses/38761/assignments/1462941"],
+["Participation Report #9","https://byu.instructure.com/courses/38761/assignments/1462971"],
+["Signed Engagement Letter","https://byu.instructure.com/courses/38761/assignments/1462975"],
+["Participation Report #10","https://byu.instructure.com/courses/38761/assignments/1462973"],
+["Application Question #7: Foundations of Teams","https://byu.instructure.com/courses/38761/assignments/1462931"],
+["Case Write Up #5: Blue Angels","https://byu.instructure.com/courses/38761/assignments/1462936"],
+["Participation Report #11","https://byu.instructure.com/courses/38761/assignments/1462953"],
+["Participation Report #12","https://byu.instructure.com/courses/38761/assignments/1462954"],
+["Application Question #8: Leadership","https://byu.instructure.com/courses/38761/assignments/1462932"],
+["Participation Report #13","https://byu.instructure.com/courses/38761/assignments/1462955"],
+["Application Question #9: Unity in Diversity","https://byu.instructure.com/courses/38761/assignments/1462933"],
+["Case Write-Up 6: Mary Graffin","https://byu.instructure.com/courses/38761/assignments/1462942"],
+["Participation Report #14","https://byu.instructure.com/courses/38761/assignments/1462956"],
+["Participation Report #15","https://byu.instructure.com/courses/38761/assignments/1462957"],
+["Application Question #10: Team Decision Making","https://byu.instructure.com/courses/38761/assignments/1462934"],
+["Participation Report #16","https://byu.instructure.com/courses/38761/assignments/1462958"],
+["Case Write-Up 7: Merck","https://byu.instructure.com/courses/38761/assignments/1462943"],
+["Case Write-Up 8: Microsoft Reorg","https://byu.instructure.com/courses/38761/assignments/1462944"],
+["Participation Report #17","https://byu.instructure.com/courses/38761/assignments/1462959"],
+["Case Write-Up 9: Southwest","https://byu.instructure.com/courses/38761/assignments/1462945"],
+["Participation Report #18","https://byu.instructure.com/courses/38761/assignments/1462960"],
+["Case Write Up #10: Enron","https://byu.instructure.com/courses/38761/assignments/1462935"],
+["Participation Report #19","https://byu.instructure.com/courses/38761/assignments/1462974"],
+["Change Project","https://byu.instructure.com/courses/38761/assignments/1462946"],
+["Participation Report #20","https://byu.instructure.com/courses/38761/assignments/1462962"],
+["Case Write-Up 11: Peter Browning","https://byu.instructure.com/courses/38761/assignments/1462937"],
+["Application Question #11: Happiness","https://byu.instructure.com/courses/38761/assignments/1462925"],
+["Participation Report #21","https://byu.instructure.com/courses/38761/assignments/1462963"],
+["Team Project Paper","https://byu.instructure.com/courses/38761/assignments/1462979"],
+["Client Evaluation","https://byu.instructure.com/courses/38761/assignments/1462948"],
+["Participation Report #22","https://byu.instructure.com/courses/38761/assignments/1462964"],
+["Participation Report #23","https://byu.instructure.com/courses/38761/assignments/1462965"],
+["Participation Report #24","https://byu.instructure.com/courses/38761/assignments/1470823"],
+["Team Peer Evaluation","https://byu.instructure.com/courses/38761/assignments/1462978"],
+["Individual Project Score","https://byu.instructure.com/courses/38761/assignments/1462949"],
+["Participation Score","https://byu.instructure.com/courses/38761/assignments/1462972"],
+
+["Syllabus Quiz 1","https://byu.instructure.com/courses/36766/assignments/1416626"],
+["Professional Interview - Career","https://byu.instructure.com/courses/36766/assignments/1417040"],
+["Hardware Proposal Assignment","https://byu.instructure.com/courses/36766/assignments/1444960"],
+["Chapter 1 Quiz","https://byu.instructure.com/courses/36766/assignments/1422802"],
+["Ch 9 and Ch 10 Quiz","https://byu.instructure.com/courses/36766/assignments/1446725"],
+["Lab 2 Install OS","https://byu.instructure.com/courses/36766/assignments/1447697"],
+["Lab 2 Operating System Install Quiz v2","https://byu.instructure.com/courses/36766/assignments/1447810"],
+["Guest Speaker Quiz","https://byu.instructure.com/courses/36766/assignments/1420741"],
+["Flash HW Completion Reporting Quiz","https://byu.instructure.com/courses/36766/assignments/1447937"],
+["Ch 3 Reading Quiz","https://byu.instructure.com/courses/36766/assignments/1423998"],
+["Lab 1 Hardware","https://byu.instructure.com/courses/36766/assignments/1424068"],
+
+["Review 3 previous projects","https://byu.instructure.com/courses/36765/assignments/1459837"],
+["Brainstorm 3 Ideas","https://byu.instructure.com/courses/36765/assignments/1493649"],
+["Choose your team and project","https://byu.instructure.com/courses/36765/assignments/1493651"],
+["Lean Canvas","https://byu.instructure.com/courses/36765/assignments/1493720"],
+["Meet with professor","https://byu.instructure.com/courses/36765/assignments/1493724"],
+["User Research Results","https://byu.instructure.com/courses/36765/assignments/1493728"],
+["Mockups and branding","https://byu.instructure.com/courses/36765/assignments/1493733"],
+["Peer feedback #1","https://byu.instructure.com/courses/36765/assignments/1493743"],
+["Tech Stack","https://byu.instructure.com/courses/36765/assignments/1493736"],
+["Project Plan","https://byu.instructure.com/courses/36765/assignments/1493746"],
+["Project Pitch Materials","https://byu.instructure.com/courses/36765/assignments/1493748"],
+["Project Pitch in class","https://byu.instructure.com/courses/36765/assignments/1493749"],
+["Peer feedback #2","https://byu.instructure.com/courses/36765/assignments/1493762"],
+["Rollins Center","https://byu.instructure.com/courses/36765/assignments/1493761"],
+
+["Prayer Survey","https://byu.instructure.com/courses/37070/assignments/1451978"],
+["Join Our Slack Workspace","https://byu.instructure.com/courses/37070/assignments/1452186"],
+["Pre-Class Quiz Sep 9","https://byu.instructure.com/courses/37070/assignments/1464038"],
+["The Great Pi Test (en clase)","https://byu.instructure.com/courses/37070/assignments/1449865"],
+["Security Review Roundtable Game (en clase)","https://byu.instructure.com/courses/37070/assignments/1449866"],
+["Kali Linux Setup","https://byu.instructure.com/courses/37070/assignments/1449868"],
+["Diceware (en clase)","https://byu.instructure.com/courses/37070/assignments/1449869"],
+["Lab - Password Cracking","https://byu.instructure.com/courses/37070/assignments/1449870"],
+["Metasploit Lab","https://byu.instructure.com/courses/37070/assignments/1449871"],
+["Lab - SQLi","https://byu.instructure.com/courses/37070/assignments/1449872"],
+["Pen Test Project","https://byu.instructure.com/courses/37070/assignments/1449873"],
+["Social Engineering Lab","https://byu.instructure.com/courses/37070/assignments/1449874"],
+["Lock Picking (en clase)","https://byu.instructure.com/courses/37070/assignments/1449875"],
+["Online Midterm 1","https://byu.instructure.com/courses/37070/assignments/1449876"],
+["Physical Security Lab","https://byu.instructure.com/courses/37070/assignments/1449877"],
+["IoT Activity (en clase)","https://byu.instructure.com/courses/37070/assignments/1449878"],
+["Malware Analysis Lab (Quiz)","https://byu.instructure.com/courses/37070/assignments/1449879"],
+["Network Security Monitoring and Security Onion Lab","https://byu.instructure.com/courses/37070/assignments/1449880"],
+["War Room Kickoff Attendance","https://byu.instructure.com/courses/37070/assignments/1449881"],
+["War Room Assignment Due","https://byu.instructure.com/courses/37070/assignments/1449882"],
+["Business Key Terms (en clase)","https://byu.instructure.com/courses/37070/assignments/1449883"],
+["War Room Video Feedback","https://byu.instructure.com/courses/37070/assignments/1449884"],
+["Security Escape Room","https://byu.instructure.com/courses/37070/assignments/1449885"],
+["Student Ratings","https://byu.instructure.com/courses/37070/assignments/1449886"],
+["Online Final Exam","https://byu.instructure.com/courses/37070/assignments/1449887"],
+
+["Prep: Leer el Syllabus","https://byu.instructure.com/courses/36067/assignments/syllabus"],
+["Prep: Unirse al Slack de UX","https://join.slack.com/t/uxis551/shared_invite/zt-1xmvnsnw2-eszXHOJmw~dZozxfhoddnw"],
+["Prep: Sample Design Principles","https://byu.instructure.com/courses/36067/pages/sample-design-principles"],
+["Student Information Survey","https://byu.instructure.com/courses/36067/assignments/1462112"],
+["Universal Design Principles Quiz","https://byu.instructure.com/courses/36067/assignments/1378780"],
+["Prep: Affordances, Signifiers, and Mapping","https://byu.instructure.com/courses/36067/pages/affordances-signifiers-and-mapping"],
+["Participation - Wed Sep 9","https://byu.instructure.com/courses/36067/assignments/1461899"],
+["Prep: Experience Mapping","https://byu.instructure.com/courses/36067/pages/experience-mapping"],
+["Participation - Mon Sep 14","https://byu.instructure.com/courses/36067/assignments/1461901"],
+["Participation - Mon Sep 21","https://byu.instructure.com/courses/36067/assignments/1461903"],
+["Prep: Prototyping Concepts","https://byu.instructure.com/courses/36067/pages/prototyping-concepts"],
+["Participation - Mon Sep 28","https://byu.instructure.com/courses/36067/assignments/1461906"],
+["Prep: Don't Make Me Think, Ch. 1 y 6","https://byu.instructure.com/courses/36067/pages/dont-make-me-think"],
+["Participation - Wed Sep 30","https://byu.instructure.com/courses/36067/assignments/1461908"],
+["Prep: Conventions","https://byu.instructure.com/courses/36067/pages/conventions"],
+["Participation - Mon Oct 5","https://byu.instructure.com/courses/36067/assignments/1461911"],
+["Prep: Recognition over Recall","https://byu.instructure.com/courses/36067/pages/recognition-not-recall"],
+["Participation - Mon Oct 19","https://byu.instructure.com/courses/36067/assignments/1461922"],
+["Prep: Survey Validity","https://byu.instructure.com/courses/36067/pages/survey-validity"],
+["Prep: Don't Make Me Think, Ch. 8","https://byu.instructure.com/courses/36067/pages/dont-make-me-think"],
+["Participation - Wed Oct 21","https://byu.instructure.com/courses/36067/assignments/1461924"],
+["Participation - Mon Oct 26 (llevar research + prototipo)","https://byu.instructure.com/courses/36067/assignments/1461926"],
+["Prep: WCAG Accessibility Standards","https://byu.instructure.com/courses/36067/pages/wcag-accessibility-standards"],
+["Participation - Mon Nov 9","https://byu.instructure.com/courses/36067/assignments/1461933"],
+["Participation - Wed Nov 11","https://byu.instructure.com/courses/36067/assignments/1461936"],
+["Participation - Mon Nov 16","https://byu.instructure.com/courses/36067/assignments/1461937"],
+["Participation - Wed Nov 18","https://byu.instructure.com/courses/36067/assignments/1461939"],
+["Participation - Mon Nov 30 (Final Presentations)","https://byu.instructure.com/courses/36067/assignments/1461941"],
+];
+
+const LINKS = {};
+RAW_LINKS.forEach(([title,url]) => { LINKS[normKey(title)] = url; });
+
+function taskLink(t){
+  return LINKS[normKey(t.title)] || COURSE_HOME[t.course];
+}
+
+let tasks = [];
+let habitLogs = {};
+let activeFilters = new Set(COURSES.map(c=>c.id));
+let modalGoalId = null;
+let modalYear = new Date().getFullYear();
+let modalMonth = new Date().getMonth();
+
+async function loadHabits(){
+  try{
+    const res = await window.storage.get("checklist-habits", false);
+    if(res && res.value){
+      habitLogs = JSON.parse(res.value);
+      return;
+    }
+  }catch(e){}
+  habitLogs = {};
+  GOALS.forEach(g => habitLogs[g.id] = []);
+  await saveHabits();
+}
+
+async function saveHabits(){
+  try{
+    await window.storage.set("checklist-habits", JSON.stringify(habitLogs), false);
+  }catch(e){
+    console.error("No se pudo guardar habitos", e);
+  }
+}
+
+function isoDay(d){
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+
+function startOfWeek(d){
+  const day = d.getDay();
+  const diff = (day === 0 ? -6 : 1) - day;
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diff);
+  monday.setHours(0,0,0,0);
+  return monday;
+}
+
+function countThisWeek(goalId){
+  const logs = habitLogs[goalId] || [];
+  const now = new Date();
+  const mon = startOfWeek(now);
+  const sun = new Date(mon); sun.setDate(mon.getDate()+6);
+  return logs.filter(ds => {
+    const d = new Date(ds+"T00:00:00");
+    return d >= mon && d <= sun;
+  }).length;
+}
+
+function countInMonth(goalId, year, month){
+  const logs = habitLogs[goalId] || [];
+  return logs.filter(ds => {
+    const d = new Date(ds+"T00:00:00");
+    return d.getFullYear() === year && d.getMonth() === month;
+  }).length;
+}
+
+async function loadTasks(){
+  const fresh = seedTasks();
+  try{
+    const res = await window.storage.get("checklist-tasks", false);
+    if(res && res.value){
+      const stored = JSON.parse(res.value);
+      const storedIds = new Set(stored.map(t=>t.id));
+      const merged = stored.concat(fresh.filter(t => !storedIds.has(t.id)));
+      tasks = merged;
+      await saveTasks();
+      return;
+    }
+  }catch(e){}
+  tasks = fresh;
+  await saveTasks();
+}
+
+async function saveTasks(){
+  try{
+    await window.storage.set("checklist-tasks", JSON.stringify(tasks), false);
+  }catch(e){
+    console.error("No se pudo guardar", e);
+  }
+}
+
+function courseInfo(id){
+  return COURSES.find(c=>c.id===id) || COURSES[0];
+}
+
+function fmtDate(due){
+  if(!due) return "Sin fecha";
+  const d = new Date(due);
+  const opts = { day:"numeric", month:"short" };
+  const hasTime = due.length > 10 && due.slice(11) !== "00:00";
+  const dateStr = d.toLocaleDateString("es-ES", opts);
+  if(hasTime){
+    const timeStr = d.toLocaleTimeString("es-ES", {hour:"numeric", minute:"2-digit"});
+    return dateStr + " · " + timeStr;
+  }
+  return dateStr;
+}
+
+function countdown(due){
+  if(!due) return { text:"Sin fecha", cls:"normal-text" };
+  const now = new Date();
+  const target = new Date(due);
+  const diffMs = target - now;
+  const diffH = diffMs / (1000*60*60);
+  const diffDays = Math.floor(diffH/24);
+
+  if(diffMs < 0){
+    const overdueDays = Math.abs(diffDays);
+    if(overdueDays === 0) return { text:"Venció hoy", cls:"overdue-text" };
+    return { text:"Vencida hace "+overdueDays+"d", cls:"overdue-text" };
+  }
+  if(diffH < 24) return { text:"Hoy", cls:"soon-text" };
+  if(diffDays === 1) return { text:"Mañana", cls:"soon-text" };
+  if(diffDays <= 3) return { text:"En "+diffDays+" días", cls:"soon-text" };
+  return { text:"En "+diffDays+" días", cls:"normal-text" };
+}
+
+function renderKpis(){
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.completed).length;
+  const kpiRow = document.getElementById("kpiRow");
+  kpiRow.innerHTML = "";
+
+  const main = document.createElement("div");
+  main.className = "kpi main";
+  main.innerHTML = `<div class="num">${done} / ${total}</div><div class="lbl">Tareas completadas</div>`;
+  kpiRow.appendChild(main);
+
+  GOALS.forEach(goal => {
+    const week = countThisWeek(goal.id);
+    const card = document.createElement("div");
+    card.className = "kpi goal";
+    card.innerHTML = `
+      <div class="top">
+        <span class="icon">${goal.icon}</span>
+        <span class="count">${week}/${goal.weeklyTarget}</span>
+      </div>
+      <div class="lbl">${goal.label}</div>
+    `;
+    card.onclick = () => openGoalModal(goal.id);
+    kpiRow.appendChild(card);
+  });
+}
+
+function openGoalModal(goalId){
+  modalGoalId = goalId;
+  const now = new Date();
+  modalYear = now.getFullYear();
+  modalMonth = now.getMonth();
+  document.getElementById("goalModal").classList.add("open");
+  renderModal();
+}
+
+function closeGoalModal(){
+  document.getElementById("goalModal").classList.remove("open");
+  modalGoalId = null;
+}
+
+function renderModal(){
+  const goal = GOALS.find(g => g.id === modalGoalId);
+  if(!goal) return;
+
+  document.getElementById("mIcon").textContent = goal.icon;
+  document.getElementById("mLabel").textContent = goal.label;
+  document.getElementById("mTarget").textContent = "Meta: " + goal.target;
+  document.getElementById("mNote").textContent = goal.note;
+
+  const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  document.getElementById("mMonthLabel").textContent = monthNames[modalMonth] + " " + modalYear;
+
+  const dowEl = document.getElementById("mDow");
+  dowEl.innerHTML = "";
+  ["L","M","M","J","V","S","D"].forEach(d=>{
+    const el = document.createElement("div");
+    el.className = "cal-dow";
+    el.textContent = d;
+    dowEl.appendChild(el);
+  });
+
+  const grid = document.getElementById("mGrid");
+  grid.innerHTML = "";
+
+  const firstOfMonth = new Date(modalYear, modalMonth, 1);
+  let startOffset = firstOfMonth.getDay() - 1;
+  if(startOffset < 0) startOffset = 6;
+
+  const daysInMonth = new Date(modalYear, modalMonth+1, 0).getDate();
+  const todayStr = isoDay(new Date());
+  const logs = habitLogs[goal.id] || [];
+
+  for(let i=0;i<startOffset;i++){
+    const cell = document.createElement("div");
+    cell.className = "cal-day empty";
+    grid.appendChild(cell);
+  }
+
+  for(let day=1; day<=daysInMonth; day++){
+    const d = new Date(modalYear, modalMonth, day);
+    const ds = isoDay(d);
+    const cell = document.createElement("div");
+    cell.className = "cal-day" + (logs.includes(ds) ? " done" : "") + (ds === todayStr ? " today" : "");
+    cell.textContent = day;
+    cell.onclick = async () => {
+      const idx = habitLogs[goal.id].indexOf(ds);
+      if(idx >= 0) habitLogs[goal.id].splice(idx,1);
+      else habitLogs[goal.id].push(ds);
+      await saveHabits();
+      renderModal();
+      renderKpis();
+    };
+    grid.appendChild(cell);
+  }
+
+  document.getElementById("mMonthCount").textContent = countInMonth(goal.id, modalYear, modalMonth);
+  document.getElementById("mWeekCount").textContent = countThisWeek(goal.id) + "/" + goal.weeklyTarget;
+}
+
+function openTaskModal(t){
+  const info = courseInfo(t.course);
+  document.getElementById("tTitle").textContent = t.title;
+  document.getElementById("tCourse").textContent = COURSE_NAMES[t.course] || info.label;
+  const cd = countdown(t.due);
+  document.getElementById("tDue").textContent =
+    (t.type === "reading" ? "Lectura / preparación" : "Entrega") + " · " +
+    fmtDate(t.due) + (t.due ? " · " + (t.completed ? "Hecha" : cd.text) : "");
+  const link = document.getElementById("tLink");
+  link.href = taskLink(t);
+  link.textContent = t.type === "reading" ? "Abrir lectura" : "Ver en Canvas";
+  document.getElementById("taskModal").classList.add("open");
+}
+
+function closeTaskModal(){
+  document.getElementById("taskModal").classList.remove("open");
+}
+
+function setupModal(){
+  document.getElementById("tClose").onclick = closeTaskModal;
+  document.getElementById("taskModal").onclick = (e) => {
+    if(e.target.id === "taskModal") closeTaskModal();
+  };
+  document.getElementById("mClose").onclick = closeGoalModal;
+  document.getElementById("goalModal").onclick = (e) => {
+    if(e.target.id === "goalModal") closeGoalModal();
+  };
+  document.getElementById("mPrev").onclick = () => {
+    modalMonth--;
+    if(modalMonth < 0){ modalMonth = 11; modalYear--; }
+    renderModal();
+  };
+  document.getElementById("mNext").onclick = () => {
+    modalMonth++;
+    if(modalMonth > 11){ modalMonth = 0; modalYear++; }
+    renderModal();
+  };
+}
+
+function renderFilters(){
+  const el = document.getElementById("filters");
+  el.innerHTML = "";
+  COURSES.forEach(c=>{
+    const chip = document.createElement("div");
+    chip.className = "chip" + (activeFilters.has(c.id) ? " active" : "");
+    chip.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.label}`;
+    chip.onclick = () => {
+      if(activeFilters.has(c.id)) activeFilters.delete(c.id);
+      else activeFilters.add(c.id);
+      renderFilters();
+      renderTasks();
+    };
+    el.appendChild(chip);
+  });
+}
+
+function taskEl(t){
+  const info = courseInfo(t.course);
+  const cd = countdown(t.due);
+  const isOverdue = t.due && new Date(t.due) < new Date() && !t.completed;
+
+  const row = document.createElement("div");
+  row.className = "task" + (isOverdue ? " overdue" : "");
+
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.checked = t.completed;
+  cb.onchange = async () => {
+    t.completed = cb.checked;
+    await saveTasks();
+    renderKpis();
+    renderTasks();
+  };
+
+  const tag = document.createElement("span");
+  tag.className = "course-tag";
+  tag.style.background = info.soft;
+  tag.style.color = info.color;
+  tag.textContent = info.label;
+
+  const body = document.createElement("div");
+  body.className = "body";
+  body.innerHTML = `
+    <div class="title">${t.title}</div>
+    <div class="meta">
+      <span>${fmtDate(t.due)}</span>
+      <span class="type-tag">${t.type === "reading" ? "Lectura / prep" : "Entrega"}</span>
+    </div>
+  `;
+  body.onclick = () => openTaskModal(t);
+
+  const cdEl = document.createElement("div");
+  cdEl.className = "countdown " + cd.cls;
+  cdEl.textContent = t.completed ? "Hecha" : cd.text;
+
+  const del = document.createElement("button");
+  del.className = "del";
+  del.innerHTML = "&times;";
+  del.title = "Eliminar tarea";
+  del.onclick = async () => {
+    tasks = tasks.filter(x=>x.id !== t.id);
+    await saveTasks();
+    renderKpis();
+    renderTasks();
+  };
+
+  row.appendChild(cb);
+  row.appendChild(tag);
+  row.appendChild(body);
+  row.appendChild(cdEl);
+  row.appendChild(del);
+  return row;
+}
+
+function renderTasks(){
+  const visible = tasks.filter(t => activeFilters.has(t.course));
+  const pending = visible.filter(t=>!t.completed).sort((a,b)=>{
+    if(!a.due && !b.due) return 0;
+    if(!a.due) return 1;
+    if(!b.due) return -1;
+    return new Date(a.due) - new Date(b.due);
+  });
+  const completed = visible.filter(t=>t.completed).sort((a,b)=>{
+    if(!a.due && !b.due) return 0;
+    if(!a.due) return 1;
+    if(!b.due) return -1;
+    return new Date(b.due) - new Date(a.due);
+  });
+
+  document.getElementById("pendingCount").textContent = pending.length;
+  document.getElementById("completedCount").textContent = completed.length;
+
+  const pList = document.getElementById("pendingList");
+  pList.innerHTML = "";
+  if(pending.length === 0){
+    pList.innerHTML = '<div class="empty">No hay tareas pendientes con este filtro.</div>';
+  }else{
+    pending.forEach(t => pList.appendChild(taskEl(t)));
+  }
+
+  const cList = document.getElementById("completedList");
+  cList.innerHTML = "";
+  if(completed.length === 0){
+    cList.innerHTML = '<div class="empty">Todavía no has completado tareas con este filtro.</div>';
+  }else{
+    completed.forEach(t => cList.appendChild(taskEl(t)));
+  }
+}
+
+function setupAddForm(){
+  const sel = document.getElementById("fCourse");
+  COURSES.forEach(c=>{
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.label;
+    sel.appendChild(opt);
+  });
+
+  document.getElementById("toggleAdd").onclick = () => {
+    document.getElementById("addForm").classList.toggle("open");
+  };
+  document.getElementById("cancelAdd").onclick = () => {
+    document.getElementById("addForm").classList.remove("open");
+  };
+  document.getElementById("saveAdd").onclick = async () => {
+    const course = document.getElementById("fCourse").value;
+    const type = document.getElementById("fType").value;
+    const title = document.getElementById("fTitle").value.trim();
+    const date = document.getElementById("fDate").value;
+    const time = document.getElementById("fTime").value;
+
+    if(!title){
+      alert("Escribe un título para la tarea.");
+      return;
+    }
+    let due = null;
+    if(date){
+      due = date + "T" + (time ? time : "23:59");
+    }
+
+    tasks.push({
+      id: "t-" + Date.now(),
+      course, title, type, due,
+      completed: false
+    });
+    await saveTasks();
+
+    document.getElementById("fTitle").value = "";
+    document.getElementById("fDate").value = "";
+    document.getElementById("fTime").value = "";
+    document.getElementById("addForm").classList.remove("open");
+
+    renderKpis();
+    renderTasks();
+  };
+}
+
+async function init(){
+  await loadTasks();
+  await loadHabits();
+  renderKpis();
+  renderFilters();
+  setupAddForm();
+  setupModal();
+  renderTasks();
+  setInterval(renderTasks, 60000);
+}
+
+init();
+</script>
+</body>
+</html>
