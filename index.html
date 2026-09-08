@@ -163,6 +163,32 @@
     background: #fff;
   }
   .search-box input::placeholder{ color: var(--ink-soft); }
+
+  .date-filter{
+    display:flex;
+    align-items:center;
+    gap: 6px;
+  }
+  .date-filter input[type=date]{
+    padding: 7px 10px;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-family: inherit;
+    color: var(--ink);
+    background: #fff;
+  }
+  .date-filter span{ font-size: 12px; color: var(--ink-soft); }
+  .date-filter .clear-dates{
+    background:none;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 6px 11px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .date-filter .clear-dates:hover{ border-color: var(--overdue); color: var(--overdue); }
   .chip{
     border: 1px solid var(--line-strong);
     background: var(--card);
@@ -375,6 +401,12 @@
   <div class="toolbar">
     <div class="filters" id="filters"></div>
     <div class="search-box"><input type="text" id="searchInput" placeholder="Buscar tarea..."></div>
+    <div class="date-filter">
+      <input type="date" id="dateFrom">
+      <span>a</span>
+      <input type="date" id="dateTo">
+      <button class="clear-dates" id="clearDates">Limpiar</button>
+    </div>
     <button class="add-btn" id="toggleAdd">+ Agregar tarea</button>
   </div>
 
@@ -630,6 +662,66 @@ const SEED = [
 ["IS590R","Team memo 8: Fine tuning 2","deliverable","2026-11-30T23:59"],
 ["IS590R","Final presentation y deliverables","deliverable","2026-12-08T23:59"],
 ["IS590R","Preparación para el examen final","reading","2026-12-12T23:59"],
+
+["HRM540","Leer: Syllabus","reading","2026-09-03T08:00"],
+["HRM540","Leer: Kim Cunningham (caso)","reading","2026-09-03T08:00"],
+["HRM540","Leer: Chapter 1.2, 1.5 (Textbook)","reading","2026-09-03T08:00"],
+["HRM540","Leer: Evidence Based Management","reading","2026-09-08T08:00"],
+["HRM540","Leer: Chapter 1.4 (Textbook)","reading","2026-09-08T08:00"],
+["HRM540","Leer: What Do Personality Tests Really Reveal?","reading","2026-09-10T08:00"],
+["HRM540","Leer: Chapter 3.2, 3.3 (Textbook)","reading","2026-09-10T08:00"],
+["HRM540","Tomar: MBTI Test","reading","2026-09-10T08:00"],
+["HRM540","Tomar: Big Five Test","reading","2026-09-10T08:00"],
+["HRM540","Leer: Outsmart Your Own Biases (case)","reading","2026-09-15T08:00"],
+["HRM540","Leer: Chapter 3.4, 11.2, 11.3 (Textbook)","reading","2026-09-15T08:00"],
+["HRM540","Revisar: Hiring Committee Decision","reading","2026-09-15T08:00"],
+["HRM540","Preparar: Hauser Foods Case","reading","2026-09-17T08:00"],
+["HRM540","Leer: Chapter 5.2, 5.3, 6.3, 6.5 (Textbook)","reading","2026-09-17T08:00"],
+["HRM540","Preparar: Trouble at Tessei Case","reading","2026-09-22T08:00"],
+["HRM540","Leer: Chapter 6.2 (Textbook)","reading","2026-09-22T08:00"],
+["HRM540","Tomar: JDS Survey","reading","2026-09-22T08:00"],
+["HRM540","Leer: What is Your Calling in Life?","reading","2026-09-24T08:00"],
+["HRM540","Leer: Turn the Job You Have Into the Job You Want","reading","2026-09-24T08:00"],
+["HRM540","Ver: St. John Ted Talk","reading","2026-09-24T08:00"],
+["HRM540","Leer: Harnessing the Power of Persuasion","reading","2026-09-29T08:00"],
+["HRM540","Leer: Chapter 13.2, 13.3 (Textbook)","reading","2026-09-29T08:00"],
+["HRM540","Leer: Investigative Negotiation","reading","2026-10-08T08:00"],
+["HRM540","Leer: Chapter 10.5 (Textbook)","reading","2026-10-08T08:00"],
+["HRM540","Preparar: Claude Grunitzky Case","reading","2026-10-13T08:00"],
+["HRM540","Leer: Chapter 13.5 (Textbook)","reading","2026-10-13T08:00"],
+["HRM540","Leer: Social Identity Theory","reading","2026-10-15T08:00"],
+["HRM540","Leer: Build Loyalty Like Apple: Define Your Enemy","reading","2026-10-15T08:00"],
+["HRM540","Leer: Chapter 9.2, 9.3 (Textbook)","reading","2026-10-15T08:00"],
+["HRM540","Ver: Blue Angels Video Case","reading","2026-10-20T08:00"],
+["HRM540","Leer: The Congruence Model","reading","2026-10-20T08:00"],
+["HRM540","Leer: Leaders Don't Matter","reading","2026-10-22T08:00"],
+["HRM540","Leer: Level 5 Leadership","reading","2026-10-22T08:00"],
+["HRM540","Leer: Chapter 12.2, 12.3, 12.4 (Textbook)","reading","2026-10-22T08:00"],
+["HRM540","Leer: Putting Your Company's Whole Brain to Work","reading","2026-10-27T08:00"],
+["HRM540","Leer: Chapter 2.2, 2.3 (Textbook)","reading","2026-10-27T08:00"],
+["HRM540","Preparar: Mary Griffin Case","reading","2026-10-29T08:00"],
+["HRM540","Leer: Sort Out the Three Conversations","reading","2026-10-29T08:00"],
+["HRM540","Leer: Chapter 10.2, 10.3, 10.4 (Textbook)","reading","2026-10-29T08:00"],
+["HRM540","Tomar: Style Under Pressure Survey","reading","2026-10-29T08:00"],
+["HRM540","Leer: Making Dumb Groups Smarter","reading","2026-11-03T08:00"],
+["HRM540","Leer: Chapter 11.4 (Textbook)","reading","2026-11-03T08:00"],
+["HRM540","Preparar: Merck Case","reading","2026-11-10T08:00"],
+["HRM540","Leer: The Social Responsibility of Business is to Increase its Profits","reading","2026-11-10T08:00"],
+["HRM540","Leer: Making Sense of Shareholder Value","reading","2026-11-10T08:00"],
+["HRM540","Preparar: Microsoft Reorg Case","reading","2026-11-12T08:00"],
+["HRM540","Leer: Chapter 14.2 (Textbook)","reading","2026-11-12T08:00"],
+["HRM540","Preparar: Southwest Airlines Case","reading","2026-11-17T08:00"],
+["HRM540","Leer: Chapter 15.2, 15.4 (Textbook)","reading","2026-11-17T08:00"],
+["HRM540","Leer: Ethical Breakdowns","reading","2026-11-19T08:00"],
+["HRM540","Ver: Zimbardo Video","reading","2026-11-19T08:00"],
+["HRM540","Ver: Enron Video Case","reading","2026-11-19T08:00"],
+["HRM540","Preparar: Peter Browning at Continental White Cap (A)","reading","2026-12-01T08:00"],
+["HRM540","Leer: Leading Change: Why Transformation Efforts Fail","reading","2026-12-01T08:00"],
+["HRM540","Leer: Chapter 14.3, 15.5 (Textbook)","reading","2026-12-01T08:00"],
+["HRM540","Leer: How Will You Measure Your Life","reading","2026-12-03T08:00"],
+["HRM540","Leer: Mountains to Climb","reading","2026-12-03T08:00"],
+
+["IS550","Revisar: Course Docs","reading","2026-09-08T08:00"],
 ];
 
 function seedTasks(){
@@ -820,6 +912,46 @@ const RAW_LINKS = [
 ["Participation - Mon Nov 16","https://byu.instructure.com/courses/36067/assignments/1461937"],
 ["Participation - Wed Nov 18","https://byu.instructure.com/courses/36067/assignments/1461939"],
 ["Participation - Mon Nov 30 (Final Presentations)","https://byu.instructure.com/courses/36067/assignments/1461941"],
+
+["Leer: Syllabus","https://byu.instructure.com/courses/38761/files/13594688"],
+["Leer: Kim Cunningham (caso)","https://byu.instructure.com/courses/38761/files/13572464"],
+["Leer: Chapter 1.2, 1.5 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Evidence Based Management","https://byu.instructure.com/courses/38761/files/13572419"],
+["Leer: Chapter 1.4 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: What Do Personality Tests Really Reveal?","https://byu.instructure.com/courses/38761/files/13572531"],
+["Leer: Chapter 3.2, 3.3 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Tomar: MBTI Test","https://www.16personalities.com/"],
+["Tomar: Big Five Test","https://www.outofservice.com/bigfive/"],
+["Leer: Chapter 3.4, 11.2, 11.3 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Revisar: Hiring Committee Decision","https://byu.instructure.com/courses/38761/files/13572519"],
+["Leer: Chapter 5.2, 5.3, 6.3, 6.5 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 6.2 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Tomar: JDS Survey","https://byu.instructure.com/courses/38761/files/13572471"],
+["Leer: What is Your Calling in Life?","https://byu.instructure.com/courses/38761/files/13572466"],
+["Ver: St. John Ted Talk","https://ed.ted.com/lessons/richard-st-john-the-power-of-passion"],
+["Leer: Chapter 13.2, 13.3 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 10.5 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 13.5 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Social Identity Theory","https://byu.instructure.com/courses/38761/files/13572486"],
+["Leer: Build Loyalty Like Apple: Define Your Enemy","https://byu.instructure.com/courses/38761/files/13572405"],
+["Leer: Chapter 9.2, 9.3 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Ver: Blue Angels Video Case","https://byu.instructure.com/courses/38761/assignments/1462936"],
+["Leer: The Congruence Model","https://byu.instructure.com/courses/38761/files/13572485"],
+["Leer: Leaders Don't Matter","https://byu.instructure.com/courses/38761/files/13572540"],
+["Leer: Chapter 12.2, 12.3, 12.4 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 2.2, 2.3 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Sort Out the Three Conversations","https://byu.instructure.com/courses/38761/files/13572493"],
+["Leer: Chapter 10.2, 10.3, 10.4 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Tomar: Style Under Pressure Survey","https://cruciallearning.com/assessments/free/style-under-stress-assessment/"],
+["Leer: Chapter 11.4 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: The Social Responsibility of Business is to Increase its Profits","https://byu.instructure.com/courses/38761/files/13572514"],
+["Leer: Making Sense of Shareholder Value","https://byu.instructure.com/courses/38761/files/13572522"],
+["Preparar: Microsoft Reorg Case","https://byu.instructure.com/courses/38761/files/13572484"],
+["Leer: Chapter 14.2 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 15.2, 15.4 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Chapter 14.3, 15.5 (Textbook)","https://open.umn.edu/opentextbooks/textbooks/30"],
+["Leer: Mountains to Climb","https://www.churchofjesuschrist.org/study/general-conference/2012/04/mountains-to-climb"],
+["Revisar: Course Docs","https://byu.instructure.com/courses/36765/pages/course-documents"],
 ];
 
 const LINKS = {};
@@ -833,15 +965,17 @@ let tasks = [];
 let habitLogs = {};
 let activeFilters = new Set(COURSES.map(c=>c.id));
 let searchQuery = "";
+let dateFrom = "";
+let dateTo = "";
 let modalGoalId = null;
 let modalYear = new Date().getFullYear();
 let modalMonth = new Date().getMonth();
 
 async function loadHabits(){
   try{
-    const res = await window.storage.get("checklist-habits", false);
-    if(res && res.value){
-      habitLogs = JSON.parse(res.value);
+    const raw = localStorage.getItem("checklist-habits");
+    if(raw){
+      habitLogs = JSON.parse(raw);
       return;
     }
   }catch(e){}
@@ -852,7 +986,7 @@ async function loadHabits(){
 
 async function saveHabits(){
   try{
-    await window.storage.set("checklist-habits", JSON.stringify(habitLogs), false);
+    localStorage.setItem("checklist-habits", JSON.stringify(habitLogs));
   }catch(e){
     console.error("No se pudo guardar habitos", e);
   }
@@ -893,9 +1027,9 @@ function countInMonth(goalId, year, month){
 async function loadTasks(){
   const fresh = seedTasks();
   try{
-    const res = await window.storage.get("checklist-tasks", false);
-    if(res && res.value){
-      const stored = JSON.parse(res.value);
+    const raw = localStorage.getItem("checklist-tasks");
+    if(raw){
+      const stored = JSON.parse(raw);
       const storedIds = new Set(stored.map(t=>t.id));
       const merged = stored.concat(fresh.filter(t => !storedIds.has(t.id)));
       tasks = merged;
@@ -909,7 +1043,7 @@ async function loadTasks(){
 
 async function saveTasks(){
   try{
-    await window.storage.set("checklist-tasks", JSON.stringify(tasks), false);
+    localStorage.setItem("checklist-tasks", JSON.stringify(tasks));
   }catch(e){
     console.error("No se pudo guardar", e);
   }
@@ -1169,6 +1303,12 @@ function renderTasks(){
   const q = searchQuery.trim().toLowerCase();
   const visible = tasks.filter(t => {
     if(!activeFilters.has(t.course)) return false;
+    if(dateFrom || dateTo){
+      if(!t.due) return false;
+      const dueDay = t.due.slice(0,10);
+      if(dateFrom && dueDay < dateFrom) return false;
+      if(dateTo && dueDay > dateTo) return false;
+    }
     if(!q) return true;
     const info = courseInfo(t.course);
     const haystack = (t.title + " " + info.label + " " + (COURSE_NAMES[t.course]||"")).toLowerCase();
@@ -1264,6 +1404,21 @@ async function init(){
   setupModal();
   document.getElementById("searchInput").oninput = (e) => {
     searchQuery = e.target.value;
+    renderTasks();
+  };
+  document.getElementById("dateFrom").onchange = (e) => {
+    dateFrom = e.target.value;
+    renderTasks();
+  };
+  document.getElementById("dateTo").onchange = (e) => {
+    dateTo = e.target.value;
+    renderTasks();
+  };
+  document.getElementById("clearDates").onclick = () => {
+    dateFrom = "";
+    dateTo = "";
+    document.getElementById("dateFrom").value = "";
+    document.getElementById("dateTo").value = "";
     renderTasks();
   };
   renderTasks();
