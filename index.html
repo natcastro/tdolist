@@ -434,6 +434,10 @@
       <label>Hora (opcional)</label>
       <input type="time" id="fTime">
     </div>
+    <div class="full">
+      <label>Enlace (opcional)</label>
+      <input type="url" id="fLink" placeholder="https://...">
+    </div>
     <div class="actions">
       <button class="cancel" id="cancelAdd">Cancelar</button>
       <button class="save" id="saveAdd">Guardar tarea</button>
@@ -958,7 +962,7 @@ const LINKS = {};
 RAW_LINKS.forEach(([title,url]) => { LINKS[normKey(title)] = url; });
 
 function taskLink(t){
-  return LINKS[normKey(t.title)] || COURSE_HOME[t.course];
+  return t.link || LINKS[normKey(t.title)] || COURSE_HOME[t.course];
 }
 
 let tasks = [];
@@ -1368,6 +1372,7 @@ function setupAddForm(){
     const title = document.getElementById("fTitle").value.trim();
     const date = document.getElementById("fDate").value;
     const time = document.getElementById("fTime").value;
+    const link = document.getElementById("fLink").value.trim();
 
     if(!title){
       alert("Escribe un título para la tarea.");
@@ -1381,6 +1386,7 @@ function setupAddForm(){
     tasks.push({
       id: "t-" + Date.now(),
       course, title, type, due,
+      link: link || null,
       completed: false
     });
     await saveTasks();
@@ -1388,6 +1394,7 @@ function setupAddForm(){
     document.getElementById("fTitle").value = "";
     document.getElementById("fDate").value = "";
     document.getElementById("fTime").value = "";
+    document.getElementById("fLink").value = "";
     document.getElementById("addForm").classList.remove("open");
 
     renderKpis();
