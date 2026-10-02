@@ -19,6 +19,18 @@ Déjalo corriendo en una terminal aparte mientras trabajas. Para pararlo, `Ctrl 
 
 Cada vez que le pida a Claude un cambio al checklist, Claude te va a dar un `index.html` nuevo. Solo reemplaza el archivo en esta carpeta (mismo nombre, `index.html`) y guarda. Si tienes `live-server` corriendo, el navegador se refresca solo. Tus tareas marcadas y las que agregues no se pierden: se guardan en el almacenamiento del navegador, no dentro del archivo.
 
+## Guardar en la nube (Supabase, gratis)
+
+Por defecto los datos viven solo en el navegador. Para verlos igual desde compu, tablet y celular:
+
+1. Crea un proyecto gratis en [supabase.com](https://supabase.com).
+2. En **SQL Editor**, pega y corre el contenido de `supabase/setup.sql`.
+3. En **Authentication > Users > Add user**, crea un usuario con un email tuyo y la contraseña de acceso (marca "Auto Confirm User"). En **Authentication > Providers > Email** desactiva "Allow new users to sign up".
+4. En **Project Settings > API** copia el *Project URL* y la clave *anon public*.
+5. En `index.html`, rellena `SUPABASE_URL`, `SUPABASE_ANON_KEY` y `SUPABASE_EMAIL` (el email del paso 3).
+
+Con eso, la pantalla de acceso inicia sesión en Supabase con esa contraseña y los datos se sincronizan. La clave *anon* es pública por diseño; lo que protege tus datos son las políticas de acceso de `setup.sql`.
+
 ## Respaldo con git (opcional)
 
 Esta carpeta ya es un repositorio git local (`git log` para ver el historial). Si quieres respaldarlo en GitHub:
