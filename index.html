@@ -44,6 +44,10 @@
     --c-is551: #A44B63;  --c-is551-soft: #F5E6EA;
     --c-is560: #A6482F;  --c-is560-soft: #F5E5DF;
     --c-is590r: #1F7A6C; --c-is590r-soft: #E1F1EC;
+    --c-work: #53647E;   --c-work-soft: #E7ECF3;
+    --c-church: #7A56A8; --c-church-soft: #EEE7F6;
+    --c-home: #8A7420;   --c-home-soft: #F4F0DA;
+    --c-others: #6B7280; --c-others-soft: #ECEDEF;
 
     --font-sans: "Plus Jakarta Sans", -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
     --font-serif: "Fraunces", Georgia, "Times New Roman", serif;
@@ -73,6 +77,10 @@
     --c-is551: #E27F9A;  --c-is551-soft: #301820;
     --c-is560: #E68B6F;  --c-is560-soft: #30190F;
     --c-is590r: #5FCFBD; --c-is590r-soft: #11292A;
+    --c-work: #9DB1CE;   --c-work-soft: #1A2230;
+    --c-church: #B99CE3; --c-church-soft: #261C33;
+    --c-home: #D1BE62;   --c-home-soft: #2A2711;
+    --c-others: #A5ABB5; --c-others-soft: #202327;
     color-scheme: dark;
   }
   *{ box-sizing: border-box; }
@@ -487,6 +495,9 @@
     .chip{ min-height: 40px; }
   }
   @media (max-width: 520px){
+    .date-filter{ display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 8px; width: 100%; }
+    .date-filter input[type=date]{ width: 100%; min-width: 0; }
+    .date-filter .ghost-btn{ grid-column: 1 / -1; }
     .modal-overlay{ align-items: flex-end; padding: 0; }
     .modal{ max-width: none; border-radius: 22px 22px 0 0; padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
     .modal-overlay.open .modal{ animation: sheet .4s var(--ease) both; }
@@ -566,6 +577,7 @@
       <select id="fType">
         <option value="deliverable">Entrega</option>
         <option value="reading">Lectura / preparación</option>
+        <option value="other">Otro</option>
       </select>
     </div>
     <div class="full">
@@ -658,6 +670,10 @@ const COURSES = [
   { id:"IS551", label:"IS 551", color:"var(--c-is551)", soft:"var(--c-is551-soft)" },
   { id:"IS560", label:"IS 560", color:"var(--c-is560)", soft:"var(--c-is560-soft)" },
   { id:"IS590R", label:"IS 590R", color:"var(--c-is590r)", soft:"var(--c-is590r-soft)" },
+  { id:"WORK", label:"Trabajo", color:"var(--c-work)", soft:"var(--c-work-soft)", personal:true },
+  { id:"CHURCH", label:"Iglesia", color:"var(--c-church)", soft:"var(--c-church-soft)", personal:true },
+  { id:"HOME", label:"Home", color:"var(--c-home)", soft:"var(--c-home-soft)", personal:true },
+  { id:"OTHERS", label:"Others", color:"var(--c-others)", soft:"var(--c-others-soft)", personal:true },
 ];
 
 const SEED = [
@@ -924,6 +940,10 @@ const COURSE_NAMES = {
   IS551: "IS 551: User Experience Design",
   IS560: "IS 560: Information Security Management",
   IS590R: "IS 590R: AI and Agentic Systems",
+  WORK: "Trabajo",
+  CHURCH: "Iglesia",
+  HOME: "Home",
+  OTHERS: "Others",
 };
 
 const COURSE_HOME = {
@@ -1276,6 +1296,8 @@ async function saveTasks(){
   cloudPush();
 }
 
+function typeLabel(t){ return t === "reading" ? "Lectura / prep" : (t === "other" ? "Otro" : "Entrega"); }
+
 function courseInfo(id){
   return COURSES.find(c=>c.id===id) || COURSES[0];
 }
@@ -1390,6 +1412,7 @@ function updateProgress(){
     const el = bars.querySelector('[data-course="'+c.id+'"]');
     const all = tasks.filter(t => t.course === c.id);
     const d = all.filter(t => t.completed).length;
+    el.style.display = all.length ? "" : "none";
     el.querySelector("b").textContent = d + "/" + all.length;
     el.querySelector(".cbar-fill").style.width = (all.length ? d / all.length * 100 : 0) + "%";
   });
@@ -1499,11 +1522,15 @@ function openTaskModal(t){
   document.getElementById("tCourse").textContent = COURSE_NAMES[t.course] || info.label;
   const cd = countdown(t.due);
   document.getElementById("tDue").textContent =
-    (t.type === "reading" ? "Lectura / preparación" : "Entrega") + " · " +
+    (t.type === "reading" ? "Lectura / preparación" : (t.type === "other" ? "Pendiente" : "Entrega")) + " · " +
     fmtDate(t.due) + (t.due ? " · " + (t.completed ? "Hecha" : cd.text) : "");
   const link = document.getElementById("tLink");
-  link.href = taskLink(t);
-  link.textContent = t.type === "reading" ? "Abrir lectura" : "Ver en Canvas";
+  const url = taskLink(t);
+  link.style.display = url ? "" : "none";
+  if(url){
+    link.href = url;
+    link.textContent = t.type === "reading" ? "Abrir lectura" : (courseInfo(t.course).personal ? "Abrir enlace" : "Ver en Canvas");
+  }
   document.getElementById("taskModal").classList.add("open");
 }
 
@@ -1643,7 +1670,7 @@ function taskEl(t, idx, animate){
   dateSpan.textContent = fmtDate(t.due);
   const typeTag = document.createElement("span");
   typeTag.className = "type-tag";
-  typeTag.textContent = t.type === "reading" ? "Lectura / prep" : "Entrega";
+  typeTag.textContent = typeLabel(t.type);
   meta.appendChild(dateSpan);
   meta.appendChild(typeTag);
   body.appendChild(title);
@@ -1983,7 +2010,7 @@ function aiNormalize(changes){
     const date = aiValidDate(c.date);
     const time = aiValidTime(c.time);
     const course = COURSES.some(x => x.id === c.course) ? c.course : null;
-    const type = c.type === "reading" ? "reading" : (c.type === "deliverable" ? "deliverable" : null);
+    const type = ["reading","deliverable","other"].includes(c.type) ? c.type : null;
     if(c.action === "add"){
       const title = (c.title || "").trim();
       if(!title || !course) return;
@@ -2032,7 +2059,7 @@ function aiRow(item){
 
   if(item.action === "add"){
     title.textContent = item.title;
-    sub.textContent = courseInfo(item.course).label + " · " + fmtDate(item.due) + " · " + (item.type === "reading" ? "Lectura / prep" : "Entrega");
+    sub.textContent = courseInfo(item.course).label + " · " + fmtDate(item.due) + " · " + typeLabel(item.type);
   }else{
     const t = item.target, p = item.patch || {};
     title.textContent = p.title || t.title;
@@ -2041,7 +2068,7 @@ function aiRow(item){
       if(p.title){ const o = document.createElement("span"); o.className = "p-old"; o.textContent = t.title; sub.appendChild(o); sub.appendChild(document.createElement("br")); }
       if("due" in p) lines.push("Fecha: " + fmtDate(t.due) + " → " + fmtDate(p.due));
       if(p.course) lines.push("Clase: " + courseInfo(t.course).label + " → " + courseInfo(p.course).label);
-      if(p.type) lines.push("Tipo: " + (p.type === "reading" ? "Lectura / prep" : "Entrega"));
+      if(p.type) lines.push("Tipo: " + typeLabel(p.type));
     }else{
       lines.push(fmtDate(t.due));
     }

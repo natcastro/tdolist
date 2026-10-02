@@ -14,6 +14,10 @@ const COURSES = {
   IS551: "IS 551 User Experience Design (UX, diseño, prototipos, Figma)",
   IS560: "IS 560 Information Security Management (seguridad, labs de pentesting, war room)",
   IS590R: "IS 590R AI and Agentic Systems (IA, RAG, agentes, memos de equipo)",
+  WORK: "Trabajo / Work (empleo, turnos, reuniones y pendientes laborales; NO es una clase)",
+  CHURCH: "Iglesia / Church (llamamientos, reuniones, servicio, actividades de iglesia; NO es una clase)",
+  HOME: "Home (casa y hogar: limpieza, compras, mandados, citas, pendientes personales; NO es una clase)",
+  OTHERS: "Others (cualquier cosa que no encaje en las anteriores; NO es una clase)",
 };
 
 // Modelos de Groq que soportan salida JSON estricta, en orden de preferencia.
@@ -41,7 +45,7 @@ const SCHEMA = {
           taskId: { type: ["string", "null"] },
           course: { type: ["string", "null"], enum: [...Object.keys(COURSES), null] },
           title: { type: ["string", "null"] },
-          type: { type: ["string", "null"], enum: ["deliverable", "reading", null] },
+          type: { type: ["string", "null"], enum: ["deliverable", "reading", "other", null] },
           date: { type: ["string", "null"] },
           time: { type: ["string", "null"] },
         },
@@ -58,11 +62,11 @@ Tu trabajo: convertir eso en cambios PROPUESTOS sobre su lista de tareas. Nada s
 Fecha y hora actuales: ${ctx.today} (${ctx.weekday}) ${ctx.time}, zona horaria ${ctx.timezone}.
 La semana empieza el lunes. "El jueves" = el próximo jueves (si hoy es jueves, hoy). "Mañana", "el viernes", "la próxima semana" se resuelven con la fecha de hoy.
 
-Clases (usa SIEMPRE uno de estos ids en "course"):
+Categorías (usa SIEMPRE uno de estos ids en "course"). Las primeras 6 son clases; WORK, CHURCH, HOME y OTHERS son categorías personales:
 ${Object.entries(COURSES).map(([k, v]) => `- ${k}: ${v}`).join("\n")}
 
 Formato de salida: un objeto con "reply" y "changes". En cada cambio incluye siempre todos los campos; los que no apliquen van como null.
-- "add": tarea nueva. Necesita course, title, type ("deliverable" = entrega/quiz/proyecto; "reading" = lectura/preparación) y date (YYYY-MM-DD). time (HH:MM, 24h) solo si ella lo dice; si no, null. taskId = null.
+- "add": tarea nueva. Necesita course, title, type ("deliverable" = entrega/quiz/proyecto de una clase; "reading" = lectura/preparación de una clase; "other" = cualquier pendiente de Trabajo, Iglesia, Home u Others) y date (YYYY-MM-DD). time (HH:MM, 24h) solo si ella lo dice; si no, null. taskId = null.
 - "update": cambia una tarea existente (fecha, título, etc.). Usa el taskId EXACTO de la lista. Pon solo los campos que cambian; el resto null.
 - "complete": marcar como hecha una tarea existente (taskId exacto).
 - "delete": solo si ella pide quitarla explícitamente (taskId exacto).
