@@ -403,6 +403,7 @@
   .ai-title .ic{ display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); }
   .ai-head .modal-close{ margin: 0; }
   .ai-thread{ flex: 1; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; padding: 16px 18px; overscroll-behavior: contain; }
+  .ai-thread > *{ flex-shrink: 0; }
   .msg{ max-width: 88%; padding: 10px 14px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; border-radius: 18px; animation: rise .3s var(--ease) both; }
   .msg.user{ align-self: flex-end; background: var(--ink); color: var(--bg); border-bottom-right-radius: 6px; }
   .msg.ai{ align-self: flex-start; background: var(--surface-2); border: 1px solid var(--line); border-bottom-left-radius: 6px; }
@@ -415,6 +416,7 @@
   .ai-chip:hover{ color: var(--ink); border-color: var(--ink-soft); }
 
   .proposal{ align-self: stretch; overflow: hidden; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 16px; box-shadow: var(--shadow-sm); animation: rise .35s var(--ease) both; }
+  .p-head{ padding: 10px 14px; font-size: 12px; font-weight: 600; color: var(--ink-soft); background: var(--surface-2); border-bottom: 1px solid var(--line); }
   .p-row{ display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
   .p-row input{ width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); flex-shrink: 0; cursor: pointer; }
   .p-main{ flex: 1; min-width: 0; }
@@ -2057,6 +2059,10 @@ function aiRow(item){
 function aiRenderProposal(items){
   const card = document.createElement("div");
   card.className = "proposal";
+  const head = document.createElement("div");
+  head.className = "p-head";
+  head.textContent = "Propuesta · nada se aplica hasta que toques «Aplicar»";
+  card.appendChild(head);
   items.forEach(it => card.appendChild(aiRow(it)));
 
   const actions = document.createElement("div");

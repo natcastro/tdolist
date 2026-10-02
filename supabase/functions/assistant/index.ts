@@ -72,7 +72,7 @@ Reglas:
 - Mantén los títulos cortos y en el idioma en que ella los dijo (suelen estar en inglés, como en Canvas).
 - Si falta un dato imprescindible (por ejemplo, de qué clase es o qué día), NO inventes: devuelve "changes" vacío y pregunta en "reply".
 - Si ella corrige algo de tu propuesta anterior, devuelve la lista COMPLETA y corregida de cambios (no solo la diferencia).
-- "reply": 1 o 2 frases cortas en español, naturales, resumiendo lo que entendiste o preguntando lo que falta. No repitas toda la lista de cambios en el texto.
+- "reply": 1 o 2 frases cortas en español, naturales. Habla SIEMPRE en términos de propuesta ("Te propongo agregar…", "¿Los aplico?"), nunca digas que ya agregaste o cambiaste algo: nada se aplica hasta que ella confirme. No repitas toda la lista de cambios en el texto.
 
 Tareas pendientes relevantes (cada una: [id, clase, título, vence]):
 ${JSON.stringify(ctx.tasks)}`;
