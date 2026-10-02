@@ -145,7 +145,7 @@
     stroke-dasharray: 326.73; stroke-dashoffset: 326.73;
     transition: stroke-dashoffset 1.1s var(--ease), opacity .3s;
   }
-  .ring.empty .ring-fg{ opacity: 0; }
+  .ring.zero .ring-fg{ opacity: 0; }
   .ring-label{
     position: absolute; inset: 0; display: grid; place-items: center;
     font-family: var(--font-serif); font-size: 28px; font-weight: 500;
@@ -454,6 +454,21 @@
   @media (min-width: 700px){ .ai-overlay{ align-items: center; } .ai-sheet{ border-radius: 24px; } }
   @media (max-width: 520px){ .fab{ width: 56px; padding: 0; justify-content: center; } .fab span{ display: none; } }
 
+
+  /* Barra de búsqueda y filtros */
+  .searchbar{ display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .filters-panel{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-bottom: 22px; }
+  .filter-toggle{ position: relative; display: none; }
+  .dot-badge{ position: absolute; top: 8px; right: 8px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+  .dot-badge[hidden]{ display: none; }
+  .clear-x{ position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 32px; height: 32px; display: grid; place-items: center; background: none; border: none; border-radius: 50%; color: var(--ink-soft); font-size: 22px; line-height: 1; cursor: pointer; }
+  .clear-x:hover{ background: var(--surface-2); color: var(--ink); }
+  .clear-x[hidden]{ display: none; }
+  .search-box input[type=search]{ -webkit-appearance: none; appearance: none; padding-right: 40px; }
+  .search-box input[type=search]::-webkit-search-cancel-button{ -webkit-appearance: none; display: none; }
+  .add-btn{ flex-shrink: 0; }
+  .task .title, .msg, .p-title, .modal-title{ overflow-wrap: anywhere; }
+
   /* Motion */
   @keyframes rise{ from{ opacity: 0; transform: translateY(14px); } to{ opacity: 1; transform: none; } }
   @keyframes fade{ from{ opacity: 0; } to{ opacity: 1; } }
@@ -469,9 +484,6 @@
     .progress-card{ flex-direction: column; align-items: stretch; text-align: center; padding: 22px 20px; }
     .ring{ margin: 0 auto; }
     .course-bars{ text-align: left; }
-    .add-btn{ margin-left: 0; width: 100%; }
-    .date-filter{ flex: 1 1 100%; }
-    .date-filter input[type=date]{ flex: 1; min-width: 0; }
   }
   @media (max-width: 520px){
     .habits{ grid-template-columns: repeat(2, 1fr); }
@@ -501,9 +513,41 @@
     .modal-overlay{ align-items: flex-end; padding: 0; }
     .modal{ max-width: none; border-radius: 22px 22px 0 0; padding-bottom: calc(26px + env(safe-area-inset-bottom)); }
     .modal-overlay.open .modal{ animation: sheet .4s var(--ease) both; }
-    .filters{ flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 2px 16px; scrollbar-width: none; }
-    .filters::-webkit-scrollbar{ display: none; }
-    .chip{ flex-shrink: 0; }
+  }
+
+  /* Celular: sin movimiento lateral, barra de búsqueda fija y resumen compacto */
+  html{ overflow-x: hidden; overscroll-behavior-x: none; }
+  body{ overflow-x: clip; overscroll-behavior-x: none; touch-action: pan-y pinch-zoom; }
+  @media (max-width: 760px){
+    body{ padding-top: 0; }
+    .top{ padding-top: calc(24px + env(safe-area-inset-top)); margin-bottom: 20px; }
+    .searchbar{ position: sticky; top: 0; z-index: 30; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left))) 12px; padding: calc(10px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 10px max(16px, env(safe-area-inset-left)); background: color-mix(in srgb, var(--bg) 88%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+    .search-box{ flex: 1 1 auto; min-width: 0; }
+    .filter-toggle{ display: grid; }
+    .add-btn{ width: 44px; padding: 0; }
+    .add-btn .lbl-add{ display: none; }
+    .filters-panel{ display: none; flex-direction: column; align-items: stretch; margin-bottom: 18px; padding: 14px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; }
+    .filters-panel.open{ display: flex; animation: rise .3s var(--ease) both; }
+    .date-filter{ display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 8px; width: 100%; }
+    .date-filter input[type=date]{ width: 100%; min-width: 0; }
+    .date-filter .ghost-btn{ grid-column: 1 / -1; }
+
+    /* Resumen compacto */
+    .overview{ margin-bottom: 22px; }
+    .progress-card{ display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 4px 16px; text-align: left; padding: 16px; }
+    .progress-meta{ display: contents; }
+    .ring{ width: 84px; height: 84px; margin: 0; grid-row: 1 / span 2; }
+    .ring-label{ font-size: 20px; }
+    .big{ font-size: 30px; align-self: end; }
+    .big .of{ font-size: 18px; }
+    .progress-meta .lbl{ margin: 0; align-self: start; }
+    .course-bars{ grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px 16px; margin-top: 10px; }
+    .habits{ grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+    .habit{ padding: 10px 10px 9px; gap: 2px 6px; }
+    .habit-count b{ font-size: 14px; }
+    .habit-ic{ width: 28px; height: 28px; }
+    .habit-name{ margin-top: 2px; font-size: 11.5px; }
+    .section-title{ scroll-margin-top: 84px; }
   }
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{ animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; }
@@ -552,17 +596,25 @@
     <div class="habits reveal d2" id="kpiRow"></div>
   </section>
 
-  <div class="toolbar reveal d3">
+  <div class="searchbar reveal d3" id="searchbar">
+    <div class="search-box">
+      <span id="searchIc"></span>
+      <input type="search" id="searchInput" placeholder="Buscar tarea o clase..." aria-label="Buscar tarea" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="search">
+      <button class="clear-x" id="searchClear" type="button" aria-label="Borrar búsqueda" hidden>&times;</button>
+    </div>
+    <button class="icon-btn filter-toggle" id="filterToggle" type="button" aria-label="Filtros" aria-expanded="false" aria-controls="filtersPanel">
+      <span id="filterIc"></span><span class="dot-badge" id="filterBadge" hidden></span>
+    </button>
+    <button class="btn-primary add-btn" id="toggleAdd" type="button" aria-label="Agregar tarea"></button>
+  </div>
+
+  <div class="filters-panel reveal d3" id="filtersPanel">
     <div class="filters" id="filters"></div>
-    <div class="toolbar-row">
-      <div class="search-box"><span id="searchIc"></span><input type="text" id="searchInput" placeholder="Buscar tarea o clase..." aria-label="Buscar tarea"></div>
-      <div class="date-filter">
-        <input type="date" id="dateFrom" aria-label="Desde">
-        <span>a</span>
-        <input type="date" id="dateTo" aria-label="Hasta">
-        <button class="ghost-btn" id="clearDates">Limpiar</button>
-      </div>
-      <button class="btn-primary add-btn" id="toggleAdd"></button>
+    <div class="date-filter">
+      <input type="date" id="dateFrom" aria-label="Desde">
+      <span>a</span>
+      <input type="date" id="dateTo" aria-label="Hasta">
+      <button class="ghost-btn" id="clearDates" type="button">Limpiar</button>
     </div>
   </div>
 
@@ -1343,6 +1395,7 @@ const ICON_PATHS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  sliders: '<path d="M21 6h-9M8 6H3M21 12h-3M14 12H3M21 18h-7M10 18H3"/><circle cx="10" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="12" cy="18" r="2"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
   lock: '<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
@@ -1386,7 +1439,7 @@ function updateProgress(){
   animateNumber(document.getElementById("doneNum"), done);
   document.getElementById("totalNum").textContent = total;
   document.getElementById("ringPct").textContent = pct + "%";
-  document.getElementById("ring").classList.toggle("empty", done === 0);
+  document.getElementById("ring").classList.toggle("zero", done === 0);
   document.getElementById("ringFg").style.strokeDashoffset = RING_C * (1 - (total ? done / total : 0));
 
   if(lastDone !== null && done > lastDone){
@@ -1559,6 +1612,11 @@ function setupModal(){
   };
 }
 
+function updateFilterBadge(){
+  const on = activeFilters.size !== COURSES.length || !!dateFrom || !!dateTo;
+  document.getElementById("filterBadge").hidden = !on;
+}
+
 function renderFilters(){
   const el = document.getElementById("filters");
   el.innerHTML = "";
@@ -1577,6 +1635,7 @@ function renderFilters(){
     };
     el.appendChild(chip);
   });
+  updateFilterBadge();
 }
 
 function closeMenus(){
@@ -2294,16 +2353,40 @@ async function init(){
   renderFilters();
   setupAddForm();
   setupModal();
-  document.getElementById("searchInput").oninput = (e) => {
+  const searchInput = document.getElementById("searchInput");
+  const searchClear = document.getElementById("searchClear");
+  const isPhone = () => window.matchMedia("(max-width: 760px)").matches;
+  searchInput.oninput = (e) => {
+    const had = searchQuery.trim().length > 0;
     searchQuery = e.target.value;
+    searchClear.hidden = !e.target.value;
     renderTasks();
+    if(isPhone() && !had && e.target.value.trim()){
+      const t = document.querySelector(".section-title");
+      const y = t.getBoundingClientRect().top + window.scrollY - 84;
+      if(window.scrollY < y) window.scrollTo({ top: y, behavior: REDUCED_MOTION ? "auto" : "smooth" });
+    }
+  };
+  searchInput.onkeydown = (e) => { if(e.key === "Enter") searchInput.blur(); };
+  searchClear.onclick = () => {
+    searchInput.value = "";
+    searchInput.dispatchEvent(new Event("input"));
+    searchInput.focus();
+  };
+  const panel = document.getElementById("filtersPanel");
+  const ftoggle = document.getElementById("filterToggle");
+  ftoggle.onclick = () => {
+    const open = panel.classList.toggle("open");
+    ftoggle.setAttribute("aria-expanded", open ? "true" : "false");
   };
   document.getElementById("dateFrom").onchange = (e) => {
     dateFrom = e.target.value;
+    updateFilterBadge();
     renderTasks(true);
   };
   document.getElementById("dateTo").onchange = (e) => {
     dateTo = e.target.value;
+    updateFilterBadge();
     renderTasks(true);
   };
   document.getElementById("clearDates").onclick = () => {
@@ -2311,6 +2394,7 @@ async function init(){
     dateTo = "";
     document.getElementById("dateFrom").value = "";
     document.getElementById("dateTo").value = "";
+    updateFilterBadge();
     renderTasks(true);
   };
   renderTasks(true);
@@ -2345,7 +2429,8 @@ function unlock(){
 async function setupLock(){
   document.getElementById("lockIc").innerHTML = icon("lock", 24);
   document.getElementById("searchIc").innerHTML = icon("search", 16);
-  document.getElementById("toggleAdd").innerHTML = icon("plus", 16) + " Agregar tarea";
+  document.getElementById("toggleAdd").innerHTML = icon("plus", 18) + '<span class="lbl-add">Agregar tarea</span>';
+  document.getElementById("filterIc").innerHTML = icon("sliders", 20);
 
   const input = document.getElementById("lockInput");
   const submit = document.getElementById("lockSubmit");
