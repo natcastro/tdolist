@@ -1886,7 +1886,29 @@ let aiRecog = null;
 let aiListening = false;
 let aiMicText = "";
 
-function aiContext(){
+const AI_STOPWORDS = new Set(["para","tengo","hacer","esta","este","ahora","tarea","clase","entrega","manana","semana","como","pero","porque","quiero","agrega","agregar","cambia","cambiar","termine","tambien","entonces","sobre","desde","hasta","todas","todos","algo"]);
+
+function aiNorm(t){ return String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+// El plan gratis tiene un tope de tokens por minuto: solo mandamos las tareas relevantes
+// (próximas, recientes, sin fecha, o que mencionan palabras de la conversación).
+function aiRelevantTasks(text){
+  const now = new Date();
+  const lo = new Date(now); lo.setDate(lo.getDate() - 14);
+  const hi = new Date(now); hi.setDate(hi.getDate() + 30);
+  const said = aiNorm(text + " " + aiHistory.filter(h => h.role === "user").map(h => h.text).join(" "));
+  const words = said.split(/[^a-z0-9]+/).filter(w => w.length >= 4 && !AI_STOPWORDS.has(w));
+  return tasks.filter(t => {
+    if(t.completed) return false;
+    if(!t.due) return true;
+    const d = new Date(t.due);
+    if(d >= lo && d <= hi) return true;
+    const title = aiNorm(t.title);
+    return words.some(w => title.includes(w));
+  }).sort((a, b) => (a.due || "9").localeCompare(b.due || "9")).slice(0, 90);
+}
+
+function aiContext(text){
   const now = new Date();
   const days = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
   return {
@@ -1894,7 +1916,7 @@ function aiContext(){
     time: now.toTimeString().slice(0,5),
     weekday: days[now.getDay()],
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    tasks: tasks.filter(t => !t.completed).map(t => ({ id:t.id, course:t.course, title:t.title, type:t.type, due:t.due }))
+    tasks: aiRelevantTasks(text).map(t => ({ id:t.id, course:t.course, title:t.title, due:t.due }))
   };
 }
 
@@ -2128,7 +2150,7 @@ async function aiSubmit(raw){
   aiScroll();
   try{
     const { data, error } = await sb.functions.invoke(AI_FUNCTION, {
-      body: { message: text, history: aiHistory.slice(-8), context: aiContext() }
+      body: { message: text, history: aiHistory.slice(-8), context: aiContext(text) }
     });
     if(error) throw error;
     if(!data || data.error) throw new Error((data && data.error) || "Respuesta vacía");

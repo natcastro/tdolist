@@ -31,17 +31,20 @@ Por defecto los datos viven solo en el navegador. Para verlos igual desde compu,
 
 Con eso, la pantalla de acceso inicia sesión en Supabase con esa contraseña y los datos se sincronizan. La clave *anon* es pública por diseño; lo que protege tus datos son las políticas de acceso de `setup.sql`.
 
-## Asistente de IA (Gemini)
+## Asistente de IA (Groq, plan gratis)
 
 El botón **Asistente** (abajo a la derecha) te deja decir o escribir lo que tienes que hacer ("el quiz de IS 531 ahora es el viernes", "agrega el memo 5 de IS 590R para el 3 de noviembre"). La IA propone los cambios, tú los confirmas o corriges, y recién ahí se aplican (con botón de deshacer).
 
-La clave de Gemini **nunca va en la página**: vive como secreto en una función de Supabase (`supabase/functions/assistant/index.ts`) que solo atiende a tu sesión iniciada.
+La clave de la IA **nunca va en la página**: vive como secreto en una función de Supabase (`supabase/functions/assistant/index.ts`) que solo atiende a tu sesión iniciada.
 
 Para activarlo (una sola vez):
 
-1. En Supabase: **Edge Functions > Deploy a new function > Via Editor**. Nómbrala exactamente `assistant`, pega el contenido de `supabase/functions/assistant/index.ts` y publícala. Deja activado "Verify JWT".
-2. En **Edge Functions > Secrets**, agrega `GEMINI_API_KEY` con tu clave de Gemini (de [aistudio.google.com](https://aistudio.google.com/apikey)). Opcional: `GEMINI_MODEL` si quieres otro modelo (por defecto `gemini-2.5-flash`).
-3. Recarga la página, inicia sesión y toca **Asistente**.
+1. Crea una cuenta gratis en [console.groq.com](https://console.groq.com) (no pide tarjeta) y, en **API Keys**, crea una clave.
+2. En Supabase: **Edge Functions > Secrets**, agrega `GROQ_API_KEY` con esa clave. Opcional: `GROQ_MODEL` para forzar un modelo (por defecto prueba `openai/gpt-oss-120b`, luego `qwen/qwen3.8-27b` y `openai/gpt-oss-20b`).
+3. En **Edge Functions**, abre tu función, pestaña **Code**, pega el contenido de `supabase/functions/assistant/index.ts` y dale a **Deploy updates**. Deja activado "Verify JWT" (o desactívalo si da error 401; la función valida tu sesión por su cuenta).
+4. Recarga la página, inicia sesión y toca **Asistente**.
+
+Límites del plan gratis (aproximados, revísalos en tu consola de Groq): ~1,000 consultas al día, ~8,000 tokens por minuto. Por eso la página solo envía las tareas relevantes en cada consulta.
 
 El micrófono usa el reconocimiento de voz del navegador (mejor en Chrome y Safari). Si tu navegador no lo soporta, el botón de micrófono no aparece y puedes escribir o usar el micrófono del teclado del celular.
 
