@@ -398,8 +398,10 @@
 
 
   /* Asistente de IA */
-  .fab{ position: fixed; right: max(20px, env(safe-area-inset-right)); bottom: max(20px, env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px 0 18px; background: var(--ink); color: var(--bg); border: none; border-radius: 999px; font-size: 15px; font-weight: 600; box-shadow: var(--shadow-lg); cursor: pointer; transition: transform .25s var(--ease); }
+  .fab{ position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: max(14px, env(safe-area-inset-bottom)); z-index: 60; display: inline-flex; align-items: center; gap: 10px; height: 56px; padding: 0 22px 0 18px; background: var(--ink); color: var(--bg); border: none; border-radius: 999px; font-size: 15px; font-weight: 600; box-shadow: var(--shadow-lg); cursor: pointer; transition: transform .25s var(--ease); }
   .fab[hidden]{ display: none; }
+  .fab{ transition: transform .35s var(--ease), opacity .25s ease; }
+  .fab.away{ transform: translateY(calc(100% + 28px)); opacity: 0; pointer-events: none; }
   .fab:hover{ transform: translateY(-2px); }
   .fab:active{ transform: scale(.95); }
   .ai-overlay{ display: none; position: fixed; inset: 0; z-index: 80; align-items: flex-end; justify-content: center; background: rgba(10,14,13,.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
@@ -453,7 +455,7 @@
   .send-btn{ background: var(--accent); color: var(--accent-ink); }
   .send-btn:disabled{ opacity: .35; cursor: default; }
   @media (min-width: 700px){ .ai-overlay{ align-items: center; } .ai-sheet{ border-radius: 24px; } }
-  @media (max-width: 520px){ .fab{ width: 56px; padding: 0; justify-content: center; } .fab span{ display: none; } }
+  @media (max-width: 520px){ .fab{ width: 50px; height: 50px; padding: 0; justify-content: center; } .fab span{ display: none; } }
 
 
   /* Barra de búsqueda y filtros */
@@ -2527,6 +2529,27 @@ function setupAssistant(){
   fab.innerHTML = icon("sparkles", 20) + "<span>Asistente</span>";
   fab.hidden = false;
   fab.onclick = openAssistant;
+
+  // Para no tapar contenido: se esconde al bajar por la página y mientras escribes,
+  // y reaparece al subir, arriba del todo o al llegar al final.
+  let lastY = window.scrollY, ticking = false;
+  const typing = () => { const a = document.activeElement; return !!a && a.matches && a.matches("input, textarea, select") && !a.closest(".ai-sheet"); };
+  window.addEventListener("scroll", () => {
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const dy = y - lastY;
+      const nearBottom = y + window.innerHeight >= document.documentElement.scrollHeight - 90;
+      if(typing()) fab.classList.add("away");
+      else if(y < 80 || dy < -6 || nearBottom) fab.classList.remove("away");
+      else if(dy > 8) fab.classList.add("away");
+      lastY = y;
+      ticking = false;
+    });
+  }, { passive: true });
+  document.addEventListener("focusin", () => { if(typing()) fab.classList.add("away"); });
+  document.addEventListener("focusout", () => setTimeout(() => { if(!typing()) fab.classList.remove("away"); }, 150));
   document.getElementById("aiTitleIc").innerHTML = icon("sparkles", 18);
   document.getElementById("aiClose").onclick = closeAssistant;
   document.getElementById("aiOverlay").onclick = (e) => { if(e.target.id === "aiOverlay") closeAssistant(); };
