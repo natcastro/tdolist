@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
 <script>
 (function(){
   var t = null;
@@ -469,6 +470,126 @@
   .add-btn{ flex-shrink: 0; }
   .task .title, .msg, .p-title, .modal-title{ overflow-wrap: anywhere; }
 
+
+  /* Pestañas */
+  .tabs{ display: flex; gap: 6px; width: max-content; max-width: 100%; margin: 0 0 24px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-sm); }
+  .tab{ display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 20px; font-size: 14px; font-weight: 600; color: var(--ink-soft); background: none; border: none; border-radius: 10px; cursor: pointer; transition: background-color .2s, color .2s; }
+  .tab:hover{ color: var(--ink); }
+  .tab.active{ background: var(--ink); color: var(--bg); }
+  .tab-count{ min-width: 20px; height: 20px; padding: 0 6px; display: grid; place-items: center; font-size: 11.5px; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 99px; }
+  .tab-count[hidden]{ display: none; }
+  #viewChecklist[hidden], #viewTodo[hidden]{ display: none; }
+
+  /* To Do */
+  .icon-btn.sm{ width: 40px; height: 40px; }
+  #wkPrev svg{ transform: rotate(90deg); }
+  #wkNext svg{ transform: rotate(-90deg); }
+  .week-nav{ display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  @media (max-width: 520px){ .wk-pre{ display: none; } }
+  .week-label{ flex: 1; text-align: center; font-size: 14px; font-weight: 600; }
+  .week-nav .ghost-btn{ height: 40px; color: var(--ink); }
+  .week-nav .ghost-btn:hover{ border-color: var(--accent); color: var(--accent); }
+  .daystrip{ display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 22px; }
+  .dchip{ position: relative; display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 9px 0 8px; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 14px; cursor: pointer; transition: transform .2s var(--ease), background-color .2s, border-color .2s, color .2s; }
+  .dchip:hover{ border-color: var(--line-strong); }
+  .dchip:active{ transform: scale(.95); }
+  .dchip .dw{ font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ink-soft); }
+  .dchip .dn{ font-family: var(--font-serif); font-size: 20px; line-height: 1.15; }
+  .dchip .dc{ position: absolute; top: -6px; right: -3px; min-width: 18px; height: 18px; padding: 0 5px; display: grid; place-items: center; font-size: 10.5px; font-weight: 700; color: var(--accent-ink); background: var(--accent); border-radius: 99px; }
+  .dchip .dc:empty{ display: none; }
+  .dchip.sel{ background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .dchip.sel .dw{ color: inherit; opacity: .7; }
+  .dchip.today:not(.sel){ box-shadow: 0 0 0 1.5px var(--accent) inset; }
+  .dchip.drop-over{ outline: 2px dashed var(--accent); outline-offset: 2px; transform: scale(1.06); }
+  .dchip > .todo-item, .dchip > .side-item{ display: none; }
+
+  .todo-layout{ display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
+  .todo-layout.side-closed{ grid-template-columns: 62px minmax(0, 1fr); }
+  .side{ position: sticky; top: 16px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-sm); }
+  .side-toggle{ display: flex; align-items: center; gap: 10px; width: 100%; padding: 14px 16px; font-size: 14px; font-weight: 700; color: var(--ink); text-align: left; background: none; border: none; cursor: pointer; }
+  .side-toggle:hover{ background: var(--surface-2); }
+  .side-n{ margin-left: auto; padding: 1px 9px; font-size: 12px; font-weight: 600; color: var(--ink-soft); background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; }
+  .chev svg{ display: block; transition: transform .3s var(--ease); transform: rotate(90deg); }
+  .side-closed .chev svg{ transform: rotate(-90deg); }
+  .side-closed .side-toggle{ justify-content: center; padding: 14px 0; flex-direction: column; gap: 8px; }
+  .side-closed .side-title, .side-closed .side-n{ display: none; }
+  .side-closed .side-body{ display: none; }
+  .side-body{ border-top: 1px solid var(--line); }
+  .side-search{ padding: 10px 12px 4px; }
+  .side-search input{ width: 100%; height: 40px; padding: 0 12px; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line-strong); border-radius: 10px; -webkit-appearance: none; appearance: none; }
+  .side-search input:focus{ outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .side-list{ max-height: calc(100vh - 230px); overflow-y: auto; padding: 0 8px 10px; overscroll-behavior: contain; }
+  .side-group{ margin: 14px 6px 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+  .side-group.overdue{ color: var(--overdue); }
+  .side-item{ --c: var(--accent); --cs: var(--accent-soft); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 9px 8px 9px 4px; background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--c); border-radius: 12px; cursor: pointer; transition: background-color .2s, border-color .2s, transform .15s var(--ease); }
+  .side-item:hover{ background: var(--surface-2); }
+  .side-item:active{ transform: scale(.985); }
+  .side-item.added{ background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 40%, var(--line)); border-left-color: var(--c); }
+  .side-grip, .grip{ display: grid; place-items: center; width: 24px; height: 32px; flex-shrink: 0; color: var(--ink-soft); opacity: .65; cursor: grab; touch-action: none; }
+  .side-grip svg circle, .grip svg circle{ fill: currentColor; stroke: none; }
+  .si-body{ flex: 1; min-width: 0; }
+  .si-title{ font-size: 13px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .si-meta{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 3px; font-size: 11px; color: var(--ink-soft); }
+  .mini-tag{ padding: 1px 7px; font-size: 10.5px; font-weight: 600; color: var(--ink); background: var(--cs); border-radius: 6px; }
+  .si-where{ padding: 1px 7px; font-size: 10px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 99px; }
+  .si-add{ width: 26px; height: 26px; display: grid; place-items: center; flex-shrink: 0; color: var(--ink-soft); border: 1.5px solid var(--line-strong); border-radius: 50%; }
+  .side-item.added .si-add{ color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+
+  .day-title-row{ display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
+  .day-main h2{ font-size: 32px; line-height: 1.1; }
+  .day-sub{ margin-top: 2px; font-size: 13.5px; color: var(--ink-soft); }
+  .day-progress{ min-width: 150px; font-size: 13px; color: var(--ink-soft); }
+  .dp-track{ height: 5px; margin-top: 6px; overflow: hidden; background: var(--line); border-radius: 99px; }
+  .dp-fill{ height: 100%; background: var(--accent); border-radius: 99px; transition: width .6s var(--ease); }
+  .rollover{ display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 14px 0 4px; padding: 12px 14px; font-size: 13.5px; background: color-mix(in srgb, var(--soon) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--soon) 35%, var(--line)); border-radius: 14px; }
+  .rollover[hidden]{ display: none; }
+  .btn-primary.sm{ height: 36px; padding: 0 14px; font-size: 13px; }
+  .part{ margin-top: 24px; }
+  .part-head{ display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+  .part-head .n{ margin-left: auto; font-weight: 600; letter-spacing: 0; }
+  .todo-list{ min-height: 20px; margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; border-radius: 14px; }
+  .todo-list:empty{ min-height: 44px; border: 1.5px dashed var(--line-strong); }
+  .todo-item{ --c: var(--accent); --cs: var(--accent-soft); position: relative; display: flex; align-items: center; gap: 6px; padding: 10px 8px 10px 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-sm); transition: opacity .3s, box-shadow .2s, background-color .3s; }
+  .todo-item.linked{ border-left: 3px solid var(--c); }
+  .todo-item.menu-open{ z-index: 30; }
+  .todo-item .check{ order: 0 !important; margin: -10px -2px -10px -6px; }
+  .ti-body{ flex: 1; min-width: 0; padding-left: 4px; }
+  .ti-title{ font-size: 14.5px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+  .todo-item.done{ opacity: .6; }
+  .todo-item.done .ti-title{ text-decoration: line-through; color: var(--ink-soft); }
+  .ti-sub{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 3px; font-size: 11.5px; color: var(--ink-soft); }
+  .ti-sub .over{ font-weight: 600; color: var(--overdue); }
+  .ti-edit{ width: 100%; height: 38px; padding: 0 10px; font: inherit; font-size: 16px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--accent); border-radius: 10px; }
+  .ti-edit:focus{ outline: none; box-shadow: 0 0 0 3px var(--accent-soft); }
+  .add-row{ display: flex; gap: 8px; margin-top: 8px; }
+  .add-row input{ flex: 1; min-width: 0; height: 44px; padding: 0 14px; font: inherit; font-size: 16px; color: var(--ink); background: transparent; border: 1px dashed var(--line-strong); border-radius: 12px; transition: border-color .2s, background-color .2s; }
+  .add-row input:focus{ outline: none; border: 1px solid var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .add-row button{ width: 44px; height: 44px; display: grid; place-items: center; color: var(--bg); background: var(--ink); border: none; border-radius: 12px; cursor: pointer; transition: transform .2s var(--ease); }
+  .add-row button:active{ transform: scale(.92); }
+  .day-empty{ margin-top: 18px; padding: 18px; font-size: 13.5px; line-height: 1.5; text-align: center; color: var(--ink-soft); border: 1px dashed var(--line-strong); border-radius: 14px; }
+  .drag-ghost{ opacity: .35; }
+  .drag-chosen{ box-shadow: var(--shadow-md); }
+  .drag-dragging{ opacity: .96 !important; box-shadow: var(--shadow-lg); transform: rotate(1deg); z-index: 200; }
+  .move-week{ margin: 4px 0 8px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); }
+  .move-row{ display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 16px; }
+  #moveModal .dchip .dn{ font-size: 18px; }
+
+  @media (max-width: 899px){
+    .todo-layout, .todo-layout.side-closed{ grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .side{ position: static; }
+    .side-list{ max-height: 46vh; }
+    .side-closed .side-toggle{ flex-direction: row; justify-content: flex-start; padding: 14px 16px; gap: 10px; }
+    .side-closed .side-title{ display: inline; }
+    .side-closed .side-n{ display: inline; }
+    .chev svg{ transform: rotate(180deg); }
+    .side-closed .chev svg{ transform: rotate(0deg); }
+  }
+  @media (max-width: 760px){
+    .tabs{ width: 100%; }
+    .tab{ flex: 1; }
+    .day-main h2{ font-size: 28px; }
+  }
+
   /* Motion */
   @keyframes rise{ from{ opacity: 0; transform: translateY(14px); } to{ opacity: 1; transform: none; } }
   @keyframes fade{ from{ opacity: 0; } to{ opacity: 1; } }
@@ -578,6 +699,12 @@
     </div>
   </header>
 
+  <nav class="tabs reveal d1" role="tablist" aria-label="Vistas">
+    <button class="tab active" role="tab" data-tab="checklist" aria-selected="true">Checklist</button>
+    <button class="tab" role="tab" data-tab="todo" aria-selected="false">To Do <span class="tab-count" id="todoCount" hidden></span></button>
+  </nav>
+
+  <div id="viewChecklist">
   <section class="overview">
     <div class="progress-card reveal d1">
       <div class="ring" id="ring">
@@ -659,6 +786,37 @@
 
   <div class="section-title">Completadas <span class="count" id="completedCount">0</span></div>
   <div class="task-list completed" id="completedList"></div>
+  </div>
+
+  <div id="viewTodo" hidden>
+    <div class="week-nav">
+      <button class="icon-btn sm" id="wkPrev" type="button" aria-label="Semana anterior"></button>
+      <div class="week-label" id="weekLabel" aria-live="polite"></div>
+      <button class="icon-btn sm" id="wkNext" type="button" aria-label="Semana siguiente"></button>
+      <button class="ghost-btn" id="wkToday" type="button">Hoy</button>
+    </div>
+    <div class="daystrip" id="dayStrip" role="tablist" aria-label="Días de la semana"></div>
+
+    <div class="todo-layout" id="todoLayout">
+      <aside class="side" id="todoSide">
+        <button class="side-toggle" id="sideToggle" type="button" aria-expanded="true" aria-controls="sideBody">
+          <span id="sideIc"></span><span class="side-title">Pendientes</span><span class="side-n" id="sideCount"></span><span class="chev" id="sideChev"></span>
+        </button>
+        <div class="side-body" id="sideBody">
+          <div class="side-search"><input type="search" id="sideSearch" placeholder="Buscar pendiente…" aria-label="Buscar pendiente" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+          <div class="side-list" id="sideList"></div>
+        </div>
+      </aside>
+      <section class="day-main" id="dayMain">
+        <div class="day-title-row">
+          <div><h2 id="dayTitle"></h2><div class="day-sub" id="daySub"></div></div>
+          <div class="day-progress" id="dayProgress"></div>
+        </div>
+        <div class="rollover" id="rolloverBanner" hidden></div>
+        <div id="parts"></div>
+      </section>
+    </div>
+  </div>
 </div>
 
 <button class="fab" id="aiFab" aria-label="Hablar con el asistente de IA" hidden></button>
@@ -675,6 +833,16 @@
       <textarea id="aiText" rows="1" placeholder="Escribe o habla…" aria-label="Mensaje para el asistente"></textarea>
       <button class="round-btn send-btn" id="aiSend" type="button" aria-label="Enviar" disabled></button>
     </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="moveModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="moveTitle">
+    <div class="modal-head">
+      <div class="modal-title" id="moveTitle">Mover a otro día</div>
+      <button class="modal-close" id="moveClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <div id="moveGrid"></div>
   </div>
 </div>
 
@@ -1273,6 +1441,7 @@ async function loadHabits(silent){
   if(!h) h = lsRead("checklist-habits");
   habitLogs = h || {};
   GOALS.forEach(g => { if(!habitLogs[g.id]) habitLogs[g.id] = []; });
+  todoState = (habitLogs.__todo && Array.isArray(habitLogs.__todo.items)) ? habitLogs.__todo : { items: [] };
   if(!silent) await saveHabits();
 }
 
@@ -1405,6 +1574,11 @@ const ICON_PATHS = {
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
   send: '<path d="M5 12h14M13 6l6 6-6 6"/>',
   check: '<path d="M5 12l5 5 9-10"/>',
+  grip: '<circle cx="9" cy="6" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="18" r="1.4"/>',
+  sunrise: '<path d="M17 18a5 5 0 0 0-10 0M12 2v7M4.2 10.2l1.4 1.4M1 18h2M21 18h2M18.4 11.6l1.4-1.4M23 22H1M8 6l4-4 4 4"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   external: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
 };
 
@@ -1494,6 +1668,7 @@ function renderHabits(){
 function renderKpis(){
   updateProgress();
   renderHabits();
+  if(typeof renderTodo === "function") renderTodo();
 }
 
 function openGoalModal(goalId){
@@ -1643,7 +1818,7 @@ function closeMenus(){
     m.classList.remove("open", "up");
     const btn = m.parentElement.querySelector(".menu-btn");
     if(btn) btn.setAttribute("aria-expanded", "false");
-    const task = m.closest(".task");
+    const task = m.closest(".task, .todo-item");
     if(task) task.classList.remove("menu-open");
   });
 }
@@ -2322,6 +2497,663 @@ function setupAssistant(){
   };
 }
 
+// ---- To Do: planificador semanal ----
+// Los datos viven en habitLogs.__todo (se guardan junto a los hábitos, local y en la nube).
+const PARTS = [
+  { id:"am",  label:"Mañana", icon:"sunrise" },
+  { id:"pm",  label:"Tarde",  icon:"sun" },
+  { id:"eve", label:"Noche",  icon:"moon" }
+];
+const DAY_ABBR = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+let todoState = { items: [] };
+let currentTab = "checklist";
+let todoDay = isoDay(new Date());
+let weekStart = startOfWeek(new Date());
+let sideOpen = null; // se decide al abrir la pestaña: abierto en pantallas grandes, cerrado en celular
+let sideQuery = "";
+let editingItemId = null;
+let focusPart = null;
+let todoSortables = [];
+
+function newId(){ return "i-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function parseDay(s){ return new Date(s + "T00:00:00"); }
+function weekDays(offset){
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(weekStart);
+    d.setDate(weekStart.getDate() + i + (offset || 0) * 7);
+    return isoDay(d);
+  });
+}
+function defaultPart(day){
+  if(day !== isoDay(new Date())) return "am";
+  const h = new Date().getHours();
+  return h < 12 ? "am" : (h < 18 ? "pm" : "eve");
+}
+function itemsOf(day, part){
+  return todoState.items
+    .filter(i => i.day === day && (!part || i.part === part))
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+function taskOf(item){ return item.taskId ? tasks.find(t => t.id === item.taskId) : null; }
+function isDone(item){ const t = taskOf(item); return t ? t.completed : !!item.done; }
+function itemTitle(item){ const t = taskOf(item); return t ? t.title : item.title; }
+
+function renumber(){
+  const groups = {};
+  todoState.items.forEach(i => { (groups[i.day + "|" + i.part] = groups[i.day + "|" + i.part] || []).push(i); });
+  Object.values(groups).forEach(g => {
+    g.sort((a, b) => (a.order || 0) - (b.order || 0)).forEach((it, idx) => { it.order = idx; });
+  });
+}
+
+async function saveTodo(){
+  habitLogs.__todo = todoState;
+  await saveHabits();
+}
+
+function addTodoItem(o){
+  const item = {
+    id: newId(),
+    title: o.title || "",
+    taskId: o.taskId || null,
+    day: o.day,
+    part: o.part,
+    done: false,
+    order: (o.index == null ? 9999 : o.index - 0.5)
+  };
+  todoState.items.push(item);
+  renumber();
+  return item;
+}
+
+function toggleTaskOnDay(taskId, day){
+  const existing = todoState.items.find(i => i.taskId === taskId && i.day === day);
+  if(existing){
+    todoState.items = todoState.items.filter(i => i !== existing);
+    renumber();
+  }else{
+    addTodoItem({ taskId, day, part: defaultPart(day) });
+  }
+}
+
+function moveItemToDay(id, day){
+  const it = todoState.items.find(i => i.id === id);
+  if(!it) return;
+  it.day = day;
+  it.order = 9999;
+  renumber();
+}
+
+function dayWord(day){
+  const today = isoDay(new Date());
+  const t = parseDay(today);
+  const diff = Math.round((parseDay(day) - t) / 86400000);
+  if(diff === 0) return "Hoy";
+  if(diff === 1) return "Mañana";
+  if(diff === -1) return "Ayer";
+  return capitalize(parseDay(day).toLocaleDateString("es-ES", { weekday: "long" }));
+}
+
+function updateTodoCount(){
+  const el = document.getElementById("todoCount");
+  if(!el) return;
+  const n = itemsOf(isoDay(new Date())).filter(i => !isDone(i)).length;
+  el.textContent = n;
+  el.hidden = n === 0;
+}
+
+function renderTodo(){
+  updateTodoCount();
+  if(currentTab !== "todo") return;
+  renderWeek();
+  renderSide();
+  renderDay();
+  setupTodoSortables();
+}
+
+function renderWeek(){
+  const days = weekDays();
+  const today = isoDay(new Date());
+  const a = parseDay(days[0]), b = parseDay(days[6]);
+  const fmt = (d) => d.toLocaleDateString("es-ES", { day: "numeric", month: "short" });
+  const isThis = days.includes(today);
+  document.getElementById("weekLabel").innerHTML = (isThis ? '<span class="wk-pre">Esta semana · </span>' : "") + fmt(a) + " – " + fmt(b);
+
+  const strip = document.getElementById("dayStrip");
+  strip.innerHTML = "";
+  days.forEach(d => {
+    const dt = parseDay(d);
+    const open = itemsOf(d).filter(i => !isDone(i)).length;
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "dchip" + (d === todoDay ? " sel" : "") + (d === today ? " today" : "");
+    btn.dataset.day = d;
+    btn.setAttribute("role", "tab");
+    btn.setAttribute("aria-selected", d === todoDay ? "true" : "false");
+    btn.setAttribute("aria-label", capitalize(dt.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })) + (open ? ", " + open + " pendientes" : ""));
+    btn.innerHTML = '<span class="dw">' + DAY_ABBR[dt.getDay()] + '</span><span class="dn">' + dt.getDate() + '</span><span class="dc">' + (open || "") + '</span>';
+    btn.onclick = () => { todoDay = d; renderTodo(); };
+    strip.appendChild(btn);
+  });
+}
+
+function sideItemEl(t, plannedDays){
+  const info = courseInfo(t.course);
+  const onDay = plannedDays && plannedDays.indexOf(todoDay) >= 0;
+  const el = document.createElement("div");
+  el.className = "side-item" + (onDay ? " added" : "");
+  el.dataset.taskId = t.id;
+  el.style.setProperty("--c", info.color);
+  el.style.setProperty("--cs", info.soft);
+
+  const grip = document.createElement("span");
+  grip.className = "side-grip";
+  grip.innerHTML = icon("grip", 16);
+  grip.setAttribute("aria-hidden", "true");
+
+  const body = document.createElement("div");
+  body.className = "si-body";
+  const title = document.createElement("div");
+  title.className = "si-title";
+  title.textContent = t.title;
+  const meta = document.createElement("div");
+  meta.className = "si-meta";
+  const tag = document.createElement("span");
+  tag.className = "mini-tag";
+  tag.textContent = info.label;
+  const due = document.createElement("span");
+  due.textContent = fmtDate(t.due);
+  meta.appendChild(tag);
+  meta.appendChild(due);
+  const others = (plannedDays || []).filter(d => d !== todoDay);
+  if(others.length){
+    const w = document.createElement("span");
+    w.className = "si-where";
+    w.textContent = "En " + DAY_ABBR[parseDay(others[0]).getDay()] + (others.length > 1 ? " +" + (others.length - 1) : "");
+    meta.appendChild(w);
+  }
+  body.appendChild(title);
+  body.appendChild(meta);
+
+  const add = document.createElement("span");
+  add.className = "si-add";
+  add.innerHTML = icon(onDay ? "check" : "plus", 14);
+
+  el.appendChild(grip);
+  el.appendChild(body);
+  el.appendChild(add);
+  el.setAttribute("role", "button");
+  el.setAttribute("aria-pressed", onDay ? "true" : "false");
+  el.tabIndex = 0;
+  const toggle = async () => { toggleTaskOnDay(t.id, todoDay); await saveTodo(); renderTodo(); };
+  el.onclick = (e) => { if(e.target.closest(".side-grip")) return; toggle(); };
+  el.onkeydown = (e) => { if(e.key === "Enter" || e.key === " "){ e.preventDefault(); toggle(); } };
+  return el;
+}
+
+function renderSide(){
+  if(sideOpen === null) sideOpen = window.innerWidth >= 900;
+  const layout = document.getElementById("todoLayout");
+  layout.classList.toggle("side-closed", !sideOpen);
+  document.getElementById("sideToggle").setAttribute("aria-expanded", sideOpen ? "true" : "false");
+  document.getElementById("sideIc").innerHTML = icon("list", 18);
+  document.getElementById("sideChev").innerHTML = icon("chevron", 16);
+
+  const q = aiNorm(sideQuery);
+  const all = tasks.filter(t => !t.completed);
+  document.getElementById("sideCount").textContent = all.length;
+  const shown = all.filter(t => !q || aiNorm(t.title + " " + courseInfo(t.course).label).indexOf(q) >= 0)
+    .sort((a, b) => (a.due || "9").localeCompare(b.due || "9"));
+
+  const planned = {};
+  todoState.items.forEach(i => { if(i.taskId){ (planned[i.taskId] = planned[i.taskId] || []).push(i.day); } });
+
+  const list = document.getElementById("sideList");
+  list.innerHTML = "";
+  if(!shown.length){
+    const e = document.createElement("div");
+    e.className = "empty";
+    e.textContent = q ? "Nada coincide con tu búsqueda." : "No tienes tareas pendientes.";
+    list.appendChild(e);
+    return;
+  }
+  let cur = null;
+  shown.forEach(t => {
+    const g = dayGroup(t);
+    if(cur !== g.key){
+      cur = g.key;
+      const h = document.createElement("div");
+      h.className = "side-group" + (g.key === "overdue" ? " overdue" : "");
+      h.textContent = g.label;
+      list.appendChild(h);
+    }
+    list.appendChild(sideItemEl(t, planned[t.id]));
+  });
+}
+
+function todoItemEl(item){
+  const t = taskOf(item);
+  const info = t ? courseInfo(t.course) : null;
+  const done = isDone(item);
+  const li = document.createElement("li");
+  li.className = "todo-item" + (done ? " done" : "") + (t ? " linked" : "");
+  li.dataset.id = item.id;
+  if(info){
+    li.style.setProperty("--c", info.color);
+    li.style.setProperty("--cs", info.soft);
+  }
+
+  const grip = document.createElement("span");
+  grip.className = "grip";
+  grip.innerHTML = icon("grip", 18);
+  grip.setAttribute("aria-hidden", "true");
+
+  const check = document.createElement("label");
+  check.className = "check";
+  const cb = document.createElement("input");
+  cb.type = "checkbox";
+  cb.checked = done;
+  cb.setAttribute("aria-label", "Marcar como hecha: " + itemTitle(item));
+  const box = document.createElement("span");
+  box.className = "box";
+  box.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7"/></svg>';
+  check.appendChild(cb);
+  check.appendChild(box);
+  cb.onchange = async () => {
+    if(t){
+      t.completed = cb.checked;
+      await saveTasks();
+      renderKpis();
+      renderTasks();
+    }else{
+      item.done = cb.checked;
+      await saveTodo();
+    }
+    renderTodo();
+  };
+
+  const body = document.createElement("div");
+  body.className = "ti-body";
+  if(editingItemId === item.id && !t){
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "ti-edit";
+    input.value = item.title;
+    input.setAttribute("aria-label", "Editar tarea");
+    let finished = false;
+    const finish = async (save) => {
+      if(finished) return;
+      finished = true;
+      const v = input.value.trim();
+      if(save && v) item.title = v;
+      editingItemId = null;
+      if(save) await saveTodo();
+      renderTodo();
+    };
+    input.onkeydown = (e) => {
+      if(e.key === "Enter"){ e.preventDefault(); finish(true); }
+      else if(e.key === "Escape"){ finish(false); }
+    };
+    input.onblur = () => finish(true);
+    body.appendChild(input);
+    setTimeout(() => { input.focus(); input.select(); }, 0);
+  }else{
+    const title = document.createElement("div");
+    title.className = "ti-title";
+    title.textContent = itemTitle(item);
+    body.appendChild(title);
+    if(t){
+      const sub = document.createElement("div");
+      sub.className = "ti-sub";
+      const tag = document.createElement("span");
+      tag.className = "mini-tag";
+      tag.textContent = info.label;
+      const due = document.createElement("span");
+      due.textContent = "Vence " + fmtDate(t.due);
+      if(t.due && new Date(t.due) < new Date() && !t.completed) due.className = "over";
+      sub.appendChild(tag);
+      sub.appendChild(due);
+      body.appendChild(sub);
+    }
+  }
+
+  const wrap = document.createElement("div");
+  wrap.className = "menu-wrap";
+  const mbtn = document.createElement("button");
+  mbtn.type = "button";
+  mbtn.className = "menu-btn";
+  mbtn.innerHTML = icon("dots", 18);
+  mbtn.setAttribute("aria-haspopup", "menu");
+  mbtn.setAttribute("aria-expanded", "false");
+  mbtn.setAttribute("aria-label", "Opciones: " + itemTitle(item));
+  const menu = document.createElement("div");
+  menu.className = "menu";
+  menu.setAttribute("role", "menu");
+  const mk = (cls, ic, label, fn) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = cls || "";
+    b.setAttribute("role", "menuitem");
+    b.innerHTML = icon(ic, 16) + label;
+    b.onclick = () => { closeMenus(); fn(); };
+    menu.appendChild(b);
+  };
+  if(!t) mk("", "pencil", "Editar", () => { editingItemId = item.id; renderTodo(); });
+  mk("", "calendar", "Mover a otro día…", () => openMove(item.id));
+  mk("danger", "trash", "Quitar del día", async () => {
+    todoState.items = todoState.items.filter(i => i !== item);
+    renumber();
+    await saveTodo();
+    renderTodo();
+    showToast("Quitado del día", "Deshacer", async () => {
+      todoState.items.push(item);
+      renumber();
+      await saveTodo();
+      renderTodo();
+    });
+  });
+  wrap.appendChild(mbtn);
+  wrap.appendChild(menu);
+  mbtn.onclick = (e) => {
+    e.stopPropagation();
+    const wasOpen = menu.classList.contains("open");
+    closeMenus();
+    if(wasOpen) return;
+    menu.classList.add("open");
+    li.classList.add("menu-open");
+    mbtn.setAttribute("aria-expanded", "true");
+    const r = menu.getBoundingClientRect();
+    if(r.bottom > window.innerHeight - 8) menu.classList.add("up");
+    const first = menu.querySelector("button");
+    if(first) first.focus();
+  };
+
+  li.appendChild(grip);
+  li.appendChild(check);
+  li.appendChild(body);
+  li.appendChild(wrap);
+  return li;
+}
+
+function renderDay(){
+  const its = itemsOf(todoDay);
+  const done = its.filter(isDone).length;
+  const today = isoDay(new Date());
+
+  document.getElementById("dayTitle").textContent = dayWord(todoDay);
+  document.getElementById("daySub").textContent = capitalize(parseDay(todoDay).toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" }));
+  const prog = document.getElementById("dayProgress");
+  prog.innerHTML = its.length
+    ? '<div>' + done + ' de ' + its.length + ' hechas</div><div class="dp-track"><div class="dp-fill" style="width:' + Math.round(done / its.length * 100) + '%"></div></div>'
+    : "";
+
+  const banner = document.getElementById("rolloverBanner");
+  const late = todoState.items.filter(i => i.day < today && !isDone(i));
+  if(todoDay === today && late.length){
+    banner.hidden = false;
+    banner.innerHTML = "";
+    const msg = document.createElement("span");
+    msg.textContent = late.length === 1 ? "Te quedó 1 pendiente de días anteriores." : "Te quedaron " + late.length + " pendientes de días anteriores.";
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn-primary sm";
+    btn.textContent = "Pasar a hoy";
+    btn.onclick = async () => {
+      late.forEach(i => { i.day = today; i.order = 9999; });
+      renumber();
+      await saveTodo();
+      renderTodo();
+    };
+    banner.appendChild(msg);
+    banner.appendChild(btn);
+  }else{
+    banner.hidden = true;
+  }
+
+  const parts = document.getElementById("parts");
+  parts.innerHTML = "";
+  if(!its.length){
+    const e = document.createElement("div");
+    e.className = "day-empty";
+    e.textContent = "Nada planeado para este día. Escribe algo abajo o elige tareas del panel de pendientes.";
+    parts.appendChild(e);
+  }
+  PARTS.forEach(p => {
+    const sec = document.createElement("section");
+    sec.className = "part";
+    const list = itemsOf(todoDay, p.id);
+    const head = document.createElement("div");
+    head.className = "part-head";
+    head.innerHTML = icon(p.icon, 16) + "<span>" + p.label + "</span><span class=\"n\">" + (list.length ? list.filter(i => !isDone(i)).length + "/" + list.length : "") + "</span>";
+    const ul = document.createElement("ul");
+    ul.className = "todo-list";
+    ul.dataset.part = p.id;
+    ul.setAttribute("aria-label", p.label);
+    list.forEach(it => ul.appendChild(todoItemEl(it)));
+
+    const form = document.createElement("form");
+    form.className = "add-row";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "Agregar a la " + (p.id === "eve" ? "noche" : p.label.toLowerCase()) + "…";
+    input.setAttribute("aria-label", "Agregar a " + p.label);
+    input.dataset.part = p.id;
+    input.enterKeyHint = "done";
+    input.autocomplete = "off";
+    const submit = document.createElement("button");
+    submit.type = "submit";
+    submit.setAttribute("aria-label", "Agregar");
+    submit.innerHTML = icon("plus", 18);
+    form.appendChild(input);
+    form.appendChild(submit);
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const v = input.value.trim();
+      if(!v) return;
+      addTodoItem({ title: v, day: todoDay, part: p.id });
+      focusPart = p.id;
+      await saveTodo();
+      renderTodo();
+    };
+    sec.appendChild(head);
+    sec.appendChild(ul);
+    sec.appendChild(form);
+    parts.appendChild(sec);
+  });
+  if(focusPart){
+    const inp = parts.querySelector('input[data-part="' + focusPart + '"]');
+    if(inp) inp.focus({ preventScroll: true });
+    focusPart = null;
+  }
+}
+
+// ---- Arrastrar y soltar (SortableJS; funciona con mouse y con el dedo) ----
+function readOrderFromDom(){
+  document.querySelectorAll("#parts .todo-list").forEach(ul => {
+    let idx = 0;
+    ul.querySelectorAll(":scope > .todo-item").forEach(li => {
+      const it = todoState.items.find(i => i.id === li.dataset.id);
+      if(!it) return;
+      it.part = ul.dataset.part;
+      it.day = todoDay;
+      it.order = idx++;
+    });
+  });
+}
+
+function afterDrop(){
+  document.querySelectorAll(".dchip.drop-over").forEach(c => c.classList.remove("drop-over"));
+  setTimeout(async () => {
+    renumber();
+    await saveTodo();
+    renderTodo();
+  }, 0);
+}
+
+function onTodoMove(evt){
+  document.querySelectorAll(".dchip.drop-over").forEach(c => c.classList.remove("drop-over"));
+  if(evt.to && evt.to.classList && evt.to.classList.contains("dchip")) evt.to.classList.add("drop-over");
+  return true;
+}
+
+function setupTodoSortables(){
+  todoSortables.forEach(s => { try{ s.destroy(); }catch(_){} });
+  todoSortables = [];
+  if(!window.Sortable) return;
+  const base = {
+    animation: 150,
+    forceFallback: true,
+    fallbackOnBody: true,
+    fallbackTolerance: 3,
+    ghostClass: "drag-ghost",
+    chosenClass: "drag-chosen",
+    fallbackClass: "drag-dragging",
+    onMove: onTodoMove
+  };
+
+  document.querySelectorAll("#parts .todo-list").forEach(ul => {
+    todoSortables.push(Sortable.create(ul, Object.assign({}, base, {
+      group: "todo",
+      handle: ".grip",
+      draggable: ".todo-item",
+      onAdd: (evt) => {
+        const el = evt.item;
+        if(el.classList.contains("side-item")){
+          const taskId = el.dataset.taskId;
+          const part = ul.dataset.part;
+          const idx = evt.newIndex;
+          el.remove();
+          const exists = todoState.items.find(i => i.taskId === taskId && i.day === todoDay);
+          if(exists){
+            exists.part = part;
+            exists.order = idx - 0.5;
+          }else{
+            addTodoItem({ taskId, day: todoDay, part, index: idx });
+          }
+        }else{
+          readOrderFromDom();
+        }
+        afterDrop();
+      },
+      onUpdate: () => { readOrderFromDom(); afterDrop(); },
+      onEnd: () => document.querySelectorAll(".dchip.drop-over").forEach(c => c.classList.remove("drop-over"))
+    })));
+  });
+
+  const side = document.getElementById("sideList");
+  todoSortables.push(Sortable.create(side, Object.assign({}, base, {
+    group: { name: "todo", pull: "clone", put: false },
+    sort: false,
+    handle: ".side-grip",
+    draggable: ".side-item",
+    onEnd: () => document.querySelectorAll(".dchip.drop-over").forEach(c => c.classList.remove("drop-over"))
+  })));
+
+  document.querySelectorAll("#dayStrip .dchip").forEach(chip => {
+    todoSortables.push(Sortable.create(chip, Object.assign({}, base, {
+      group: { name: "todo", pull: false, put: true },
+      sort: false,
+      onAdd: (evt) => {
+        const el = evt.item;
+        const day = chip.dataset.day;
+        if(el.classList.contains("side-item")){
+          const taskId = el.dataset.taskId;
+          el.remove();
+          if(!todoState.items.find(i => i.taskId === taskId && i.day === day)){
+            addTodoItem({ taskId, day, part: defaultPart(day) });
+          }
+        }else{
+          const id = el.dataset.id;
+          el.remove();
+          moveItemToDay(id, day);
+        }
+        afterDrop();
+      }
+    })));
+  });
+}
+
+// ---- Mover a otro día (alternativa al arrastre, pensada para el celular) ----
+function openMove(itemId){
+  const grid = document.getElementById("moveGrid");
+  grid.innerHTML = "";
+  const item = todoState.items.find(i => i.id === itemId);
+  const today = isoDay(new Date());
+  [0, 1].forEach(w => {
+    const label = document.createElement("div");
+    label.className = "move-week";
+    label.textContent = w === 0 ? "Esta semana" : "Próxima semana";
+    grid.appendChild(label);
+    const row = document.createElement("div");
+    row.className = "move-row";
+    weekDays(w).forEach(d => {
+      const dt = parseDay(d);
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "dchip" + (item && item.day === d ? " sel" : "") + (d === today ? " today" : "");
+      b.innerHTML = '<span class="dw">' + DAY_ABBR[dt.getDay()] + '</span><span class="dn">' + dt.getDate() + '</span>';
+      b.setAttribute("aria-label", capitalize(dt.toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" })));
+      b.onclick = async () => {
+        moveItemToDay(itemId, d);
+        closeMove();
+        await saveTodo();
+        renderTodo();
+      };
+      row.appendChild(b);
+    });
+    grid.appendChild(row);
+  });
+  document.getElementById("moveModal").classList.add("open");
+}
+function closeMove(){ document.getElementById("moveModal").classList.remove("open"); }
+
+// ---- Pestañas y controles ----
+function showTab(name){
+  currentTab = name;
+  document.getElementById("viewChecklist").hidden = name !== "checklist";
+  document.getElementById("viewTodo").hidden = name !== "todo";
+  document.querySelectorAll(".tab").forEach(t => {
+    const on = t.dataset.tab === name;
+    t.classList.toggle("active", on);
+    t.setAttribute("aria-selected", on ? "true" : "false");
+  });
+  try{ localStorage.setItem("checklist-tab", name); }catch(e){}
+  window.scrollTo(0, 0);
+  if(name === "todo") renderTodo();
+}
+
+function setupTodo(){
+  document.querySelectorAll(".tab").forEach(t => { t.onclick = () => showTab(t.dataset.tab); });
+  document.getElementById("wkPrev").innerHTML = icon("chevron", 18);
+  document.getElementById("wkNext").innerHTML = icon("chevron", 18);
+  document.getElementById("wkPrev").onclick = () => shiftWeek(-1);
+  document.getElementById("wkNext").onclick = () => shiftWeek(1);
+  document.getElementById("wkToday").onclick = () => {
+    weekStart = startOfWeek(new Date());
+    todoDay = isoDay(new Date());
+    renderTodo();
+  };
+  document.getElementById("sideToggle").onclick = () => { sideOpen = !sideOpen; renderTodo(); };
+  document.getElementById("sideSearch").oninput = (e) => { sideQuery = e.target.value; renderSide(); setupTodoSortables(); };
+  document.getElementById("moveClose").onclick = closeMove;
+  document.getElementById("moveModal").onclick = (e) => { if(e.target.id === "moveModal") closeMove(); };
+  document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeMove(); });
+
+  let saved = "checklist";
+  try{ saved = localStorage.getItem("checklist-tab") || "checklist"; }catch(e){}
+  showTab(saved === "todo" ? "todo" : "checklist");
+  window.scrollTo(0, 0);
+}
+
+function shiftWeek(n){
+  weekStart = new Date(weekStart);
+  weekStart.setDate(weekStart.getDate() + n * 7);
+  const days = weekDays();
+  const today = isoDay(new Date());
+  todoDay = days.includes(today) ? today : days[0];
+  renderTodo();
+}
+
 function setupTheme(){
   const btn = document.getElementById("themeToggle");
   const paint = () => {
@@ -2400,6 +3232,7 @@ async function init(){
   renderTasks(true);
   setInterval(() => renderTasks(), 60000);
   if(CLOUD_ENABLED) setupAssistant();
+  setupTodo();
 
   if(CLOUD_ENABLED){
     document.addEventListener("visibilitychange", async () => {

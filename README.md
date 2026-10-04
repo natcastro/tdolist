@@ -31,6 +31,19 @@ Por defecto los datos viven solo en el navegador. Para verlos igual desde compu,
 
 Con eso, la pantalla de acceso inicia sesión en Supabase con esa contraseña y los datos se sincronizan. La clave *anon* es pública por diseño; lo que protege tus datos son las políticas de acceso de `setup.sql`.
 
+## Pestaña To Do (planificador semanal)
+
+Arriba hay dos pestañas: **Checklist** (tareas, metas y hábitos) y **To Do** (lo que vas a hacer en la semana).
+
+- Elige un día en la fila de la semana (o cambia de semana con las flechas) y planea su día en **Mañana / Tarde / Noche**.
+- El panel **Pendientes** (izquierda, plegable) lista tus tareas pendientes: tócalas para agregarlas al día que estás viendo (tócalas otra vez para quitarlas) o arrástralas.
+- Escribe cualquier cosa a mano en cada bloque ("levantarme", "gym").
+- Arrastra con el agarrador de la izquierda de cada ítem: para reordenar, pasarlo a otro bloque ("más tarde") o soltarlo sobre otro día de la fila de arriba. El menú de tres puntos también tiene "Mover a otro día…".
+- Marcar una tarea del Checklist desde el To Do también la marca como completada allá.
+- Los pendientes sin terminar de días anteriores aparecen con un aviso para pasarlos a hoy.
+
+Los datos del To Do se guardan junto a los hábitos (en este navegador y, si activaste Supabase, en la nube), así que no hace falta cambiar la base de datos.
+
 ## Asistente de IA (Groq, plan gratis)
 
 El botón **Asistente** (abajo a la derecha) te deja decir o escribir lo que tienes que hacer ("el quiz de IS 531 ahora es el viernes", "agrega el memo 5 de IS 590R para el 3 de noviembre"). La IA propone los cambios, tú los confirmas o corriges, y recién ahí se aplican (con botón de deshacer).
