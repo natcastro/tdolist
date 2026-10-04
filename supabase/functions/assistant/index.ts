@@ -39,15 +39,18 @@ const SCHEMA = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["action", "taskId", "course", "title", "type", "date", "time"],
+        required: ["action", "taskId", "course", "title", "type", "date", "time", "todoId", "day", "part"],
         properties: {
-          action: { type: "string", enum: ["add", "update", "complete", "delete"] },
+          action: { type: "string", enum: ["add", "update", "complete", "delete", "todo_add", "todo_update", "todo_done", "todo_remove"] },
           taskId: { type: ["string", "null"] },
           course: { type: ["string", "null"], enum: [...Object.keys(COURSES), null] },
           title: { type: ["string", "null"] },
           type: { type: ["string", "null"], enum: ["deliverable", "reading", "other", null] },
           date: { type: ["string", "null"] },
           time: { type: ["string", "null"] },
+          todoId: { type: ["string", "null"] },
+          day: { type: ["string", "null"] },
+          part: { type: ["string", "null"], enum: ["am", "pm", "eve", null] },
         },
       },
     },
@@ -66,10 +69,25 @@ Categorías (usa SIEMPRE uno de estos ids en "course"). Las primeras 6 son clase
 ${Object.entries(COURSES).map(([k, v]) => `- ${k}: ${v}`).join("\n")}
 
 Formato de salida: un objeto con "reply" y "changes". En cada cambio incluye siempre todos los campos; los que no apliquen van como null.
+
+Hay DOS cosas distintas que puedes cambiar: (A) tareas académicas y (B) el To Do (planificador por días).
+
+(A) TAREAS ACADÉMICAS (acciones add, update, complete, delete):
 - "add": tarea nueva. Necesita course, title, type ("deliverable" = entrega/quiz/proyecto de una clase; "reading" = lectura/preparación de una clase; "other" = cualquier pendiente de Trabajo, Iglesia, Home u Others) y date (YYYY-MM-DD). time (HH:MM, 24h) solo si ella lo dice; si no, null. taskId = null.
 - "update": cambia una tarea existente (fecha, título, etc.). Usa el taskId EXACTO de la lista. Pon solo los campos que cambian; el resto null.
 - "complete": marcar como hecha una tarea existente (taskId exacto).
 - "delete": solo si ella pide quitarla explícitamente (taskId exacto).
+
+(B) TO DO (planificador): ella arma su semana por días, y cada día tiene 3 bloques: "am" (mañana), "pm" (tarde) y "eve" (noche). Usa estas acciones SOLO cuando hable de su "to do", su plan, su día, o pida planear/programar algo para un día o momento ("agrégame gym hoy en la mañana", "pon el quiz de IS 531 en mi to do del jueves", "pasa levantarme para la tarde"):
+- "todo_add": agrega al To Do. Pon day (YYYY-MM-DD; si no lo dice, hoy) y part ("am"|"pm"|"eve"; si no lo dice, null). Además: o title (texto libre, p. ej. "Gym"; taskId = null) o taskId (el id EXACTO de una tarea académica pendiente de la lista, para ligarla al plan; title = null).
+- "todo_update": mueve o cambia un ítem del To Do (todoId EXACTO de la lista). Pon solo lo que cambia: day, part o title; el resto null.
+- "todo_done": marca como hecho un ítem del To Do (todoId EXACTO).
+- "todo_remove": quita un ítem del To Do (todoId EXACTO).
+En los cambios del To Do, date, time, course y type van null (y taskId solo se usa en todo_add). En los cambios de tareas académicas, todoId, day y part van null.
+"Agrégame gym hoy" es un ítem de To Do (todo_add con title), no una tarea académica. Si ella pide algo mezclado (crear la tarea X para el viernes y ponerla en su to do del jueves), devuelve los dos cambios por separado (add y todo_add con title). No dupliques: si el ítem ya está en el To Do ese día, no lo agregues otra vez.
+
+To Do actual (cada ítem: [todoId, día, bloque, título, taskId o null, hecho]):
+${JSON.stringify(ctx.todo)}
 
 Reglas:
 - Antes de proponer "add", busca en la lista si ya existe una tarea equivalente (mismo tema/título parecido en la misma clase). Si existe, propón "update" en vez de duplicar.
@@ -111,6 +129,10 @@ Deno.serve(async (req) => {
     const ctx = body?.context ?? {};
     ctx.tasks = (Array.isArray(ctx.tasks) ? ctx.tasks : []).slice(0, 200).map((t: any) => [
       String(t.id), String(t.course), String(t.title).slice(0, 80), t.due ?? null,
+    ]);
+
+    ctx.todo = (Array.isArray(ctx.todo) ? ctx.todo : []).slice(0, 60).map((i: any) => [
+      String(i.id), String(i.day), String(i.part), String(i.title ?? "").slice(0, 80), i.taskId ?? null, !!i.done,
     ]);
 
     // 3) Llamar a Groq con salida estructurada (probando el siguiente modelo si falla).

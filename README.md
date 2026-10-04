@@ -59,6 +59,8 @@ Para activarlo (una sola vez):
 
 Límites del plan gratis (aproximados, revísalos en tu consola de Groq): ~1,000 consultas al día, ~8,000 tokens por minuto. Por eso la página solo envía las tareas relevantes en cada consulta.
 
+También maneja tu **To Do**: *"agrega gym a mi to do de hoy en la mañana"*, *"pon el quiz de IS 531 en mi to do del jueves"*, *"pasa levantarme para la tarde"*, *"marca gym como hecho"*. Igual que con las tareas, primero ves la propuesta y tú confirmas. Después de cambiar la función en Supabase (o actualizar `supabase/functions/assistant/index.ts`), vuelve a pegarla en Edge Functions > tu función > Code > Deploy updates.
+
 El micrófono usa el reconocimiento de voz del navegador (mejor en Chrome y Safari). Si tu navegador no lo soporta, el botón de micrófono no aparece y puedes escribir o usar el micrófono del teclado del celular.
 
 ## Respaldo con git (opcional)

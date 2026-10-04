@@ -2171,6 +2171,18 @@ function aiRelevantTasks(text){
   }).sort((a, b) => (a.due || "9").localeCompare(b.due || "9")).slice(0, 90);
 }
 
+// Ítems del To Do cercanos (ayer a +14 días) para que la IA sepa qué ya está planeado.
+function aiTodoContext(){
+  const lo = new Date(); lo.setDate(lo.getDate() - 3);
+  const hi = new Date(); hi.setDate(hi.getDate() + 14);
+  const a = isoDay(lo), b = isoDay(hi);
+  return todoState.items
+    .filter(i => i.day >= a && i.day <= b)
+    .sort((x, y) => x.day.localeCompare(y.day) || (x.order || 0) - (y.order || 0))
+    .slice(0, 60)
+    .map(i => ({ id: i.id, day: i.day, part: i.part, title: itemTitle(i), taskId: i.taskId || null, done: isDone(i) }));
+}
+
 function aiContext(text){
   const now = new Date();
   const days = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
@@ -2179,7 +2191,8 @@ function aiContext(text){
     time: now.toTimeString().slice(0,5),
     weekday: days[now.getDay()],
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    tasks: aiRelevantTasks(text).map(t => ({ id:t.id, course:t.course, title:t.title, due:t.due }))
+    tasks: aiRelevantTasks(text).map(t => ({ id:t.id, course:t.course, title:t.title, due:t.due })),
+    todo: aiTodoContext()
   };
 }
 
@@ -2209,7 +2222,8 @@ function openAssistant(){
     [
       "El quiz de IS 531 ahora es el viernes a las 11:59 pm",
       "Agrega: memo de IS 590R para el 20 de octubre y lectura del capítulo 4 de HRM 540 para mañana",
-      "Ya terminé el Lab de SQLi"
+      "Ya terminé el Lab de SQLi",
+      "Agrega a mi To Do de hoy: gym en la mañana y estudiar IS 531 en la tarde"
     ].forEach(txt => {
       const b = document.createElement("button");
       b.type = "button";
@@ -2251,6 +2265,32 @@ function aiNormalize(changes){
       out.push({ action:"add", on:true, course, title, type: type || "deliverable", due: date ? date + "T" + (time || "23:59") : null });
       return;
     }
+    if(c.action === "todo_add"){
+      const day = aiValidDate(c.day) || isoDay(new Date());
+      const part = ["am","pm","eve"].includes(c.part) ? c.part : defaultPart(day);
+      const linked = c.taskId ? tasks.find(t => t.id === c.taskId) : null;
+      const title = linked ? linked.title : (c.title || "").trim();
+      if(!title) return;
+      if(linked && todoState.items.some(i => i.taskId === linked.id && i.day === day)) return;
+      out.push({ action:"todo_add", on:true, taskId: linked ? linked.id : null, title, day, part });
+      return;
+    }
+    if(c.action === "todo_update" || c.action === "todo_done" || c.action === "todo_remove"){
+      const it = todoState.items.find(i => i.id === c.todoId);
+      if(!it) return;
+      if(c.action === "todo_update"){
+        const patch = {};
+        const day = aiValidDate(c.day);
+        if(day && day !== it.day) patch.day = day;
+        if(["am","pm","eve"].includes(c.part) && c.part !== it.part) patch.part = c.part;
+        if(!it.taskId && c.title && c.title.trim() && c.title.trim() !== it.title) patch.title = c.title.trim();
+        if(!Object.keys(patch).length) return;
+        out.push({ action:"todo_update", on:true, todo: it, patch });
+      }else{
+        out.push({ action:c.action, on:true, todo: it });
+      }
+      return;
+    }
     const target = tasks.find(t => t.id === c.taskId);
     if(!target) return;
     if(c.action === "update"){
@@ -2275,7 +2315,10 @@ function aiNormalize(changes){
 }
 
 function aiRow(item){
-  const labels = { add:"Agregar", update:"Cambiar", complete:"Completar", delete:"Eliminar" };
+  const labels = { add:"Agregar", update:"Cambiar", complete:"Completar", delete:"Eliminar", todo_add:"A tu To Do", todo_update:"Mover en To Do", todo_done:"Hecho en To Do", todo_remove:"Quitar del To Do" };
+  const badgeClass = { todo_add:"add", todo_update:"update", todo_done:"complete", todo_remove:"delete" };
+  const partName = (id) => ({ am: "por la mañana", pm: "por la tarde", eve: "por la noche" }[id] || id);
+  const dayDesc = (d) => dayWord(d) + ", " + parseDay(d).toLocaleDateString("es-ES", { day: "numeric", month: "short" });
   const row = document.createElement("label");
   row.className = "p-row";
   const cb = document.createElement("input");
@@ -2284,14 +2327,31 @@ function aiRow(item){
   const main = document.createElement("div");
   main.className = "p-main";
   const badge = document.createElement("span");
-  badge.className = "badge " + item.action;
+  badge.className = "badge " + (badgeClass[item.action] || item.action);
   badge.textContent = labels[item.action];
   const title = document.createElement("div");
   title.className = "p-title";
   const sub = document.createElement("div");
   sub.className = "p-sub";
 
-  if(item.action === "add"){
+  if(item.action === "todo_add"){
+    title.textContent = item.title;
+    const lines = [dayDesc(item.day) + " · " + partName(item.part)];
+    if(item.taskId) lines.push(courseInfo((tasks.find(t => t.id === item.taskId) || {}).course).label);
+    sub.textContent = lines.join(" · ");
+  }else if(item.action === "todo_update" || item.action === "todo_done" || item.action === "todo_remove"){
+    const it = item.todo, p = item.patch || {};
+    title.textContent = p.title || itemTitle(it);
+    const lines = [];
+    if(item.action === "todo_update"){
+      if(p.title){ const o = document.createElement("span"); o.className = "p-old"; o.textContent = it.title; sub.appendChild(o); sub.appendChild(document.createElement("br")); }
+      if(p.day) lines.push("Día: " + dayDesc(it.day) + " → " + dayDesc(p.day));
+      if(p.part) lines.push("Bloque: " + partName(it.part) + " → " + partName(p.part));
+    }else{
+      lines.push(dayDesc(it.day) + " · " + partName(it.part));
+    }
+    sub.appendChild(document.createTextNode(lines.join(" · ")));
+  }else if(item.action === "add"){
     title.textContent = item.title;
     sub.textContent = courseInfo(item.course).label + " · " + fmtDate(item.due) + " · " + typeLabel(item.type);
   }else{
@@ -2352,10 +2412,30 @@ function aiRenderProposal(items){
 }
 
 async function aiApply(items, card){
-  const snap = { tasks: JSON.parse(JSON.stringify(tasks)), deleted: deletedIds.slice() };
+  const snap = { tasks: JSON.parse(JSON.stringify(tasks)), deleted: deletedIds.slice(), todo: JSON.parse(JSON.stringify(todoState)) };
   let n = 0;
+  let touchedTodo = false;
   items.filter(i => i.on).forEach(i => {
-    if(i.action === "add"){
+    if(i.action === "todo_add"){
+      if(!(i.taskId && todoState.items.some(x => x.taskId === i.taskId && x.day === i.day))){
+        addTodoItem({ title: i.taskId ? "" : i.title, taskId: i.taskId, day: i.day, part: i.part });
+      }
+      touchedTodo = true;
+    }else if(i.action === "todo_update"){
+      const moved = (i.patch.day && i.patch.day !== i.todo.day) || (i.patch.part && i.patch.part !== i.todo.part);
+      Object.assign(i.todo, i.patch);
+      if(moved) i.todo.order = 9999;
+      renumber();
+      touchedTodo = true;
+    }else if(i.action === "todo_done"){
+      const linked = taskOf(i.todo);
+      if(linked) linked.completed = true; else i.todo.done = true;
+      touchedTodo = true;
+    }else if(i.action === "todo_remove"){
+      todoState.items = todoState.items.filter(x => x !== i.todo);
+      renumber();
+      touchedTodo = true;
+    }else if(i.action === "add"){
       tasks.push({ id: "t-" + Date.now() + "-" + n, course:i.course, title:i.title, type:i.type, due:i.due, link:null, completed:false });
     }else if(i.action === "update"){
       Object.assign(i.target, i.patch);
@@ -2368,6 +2448,7 @@ async function aiApply(items, card){
     n++;
   });
   await saveTasks();
+  if(touchedTodo) await saveTodo();
   renderKpis();
   renderTasks(true);
   const done = document.createElement("div");
@@ -2378,7 +2459,9 @@ async function aiApply(items, card){
   showToast(n + (n === 1 ? " cambio aplicado" : " cambios aplicados"), "Deshacer", async () => {
     tasks = snap.tasks;
     deletedIds = snap.deleted;
+    todoState = snap.todo;
     await saveTasks();
+    await saveTodo();
     renderKpis();
     renderTasks(true);
   });
