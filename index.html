@@ -200,6 +200,41 @@
   .habit-dots i{ height: 4px; border-radius: 99px; background: var(--line); }
   .habit-dots i.on{ background: var(--accent); }
 
+  /* Metas (breakdown) */
+  .mg{ display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .mg-hero{ padding: 24px; border-radius: 20px; background: var(--accent); color: var(--accent-ink); }
+  .mg-title{ font-family: var(--font-serif); font-size: 26px; line-height: 1.2; margin-bottom: 4px; }
+  .mg-sub{ font-size: 13px; opacity: .85; margin-bottom: 14px; }
+  .mg-pills{ display: flex; flex-wrap: wrap; gap: 7px; }
+  .mg-pills span{ padding: 5px 13px; font-size: 12px; font-weight: 600; border-radius: 99px; background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.35); }
+  .mg-card{ padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow-sm); }
+  .mg-label{ margin-bottom: 12px; font-size: 11px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: var(--ink-soft); }
+  .mg-list{ display: flex; flex-direction: column; gap: 9px; }
+  .mg-goal{ display: flex; align-items: flex-start; gap: 12px; padding: 12px 13px; border-radius: 13px; background: color-mix(in srgb, var(--t) 13%, var(--surface)); }
+  .mg-ico{ flex-shrink: 0; font-size: 20px; line-height: 1.3; }
+  .mg-gt{ font-size: 14px; font-weight: 700; }
+  .mg-gs{ margin-top: 3px; font-size: 12.5px; line-height: 1.5; color: var(--ink-soft); }
+  .mg-tag{ display: inline-block; margin-top: 7px; padding: 2px 10px; font-size: 11px; font-weight: 700; border-radius: 99px; background: var(--t); color: #fff; }
+  .mg-bar{ height: 7px; margin-top: 9px; background: var(--line); border-radius: 99px; overflow: hidden; }
+  .mg-bar i{ display: block; height: 100%; background: var(--t); border-radius: 99px; }
+  .mg-sleep{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .mg-sleep div{ padding: 12px 6px; text-align: center; border-radius: 12px; background: color-mix(in srgb, #C9772B 13%, var(--surface)); }
+  .mg-sleep b{ display: block; font-size: 17px; font-weight: 800; }
+  .mg-sleep span{ display: block; margin-top: 3px; font-size: 11px; color: var(--ink-soft); }
+  .mg-consider{ background: color-mix(in srgb, #D9B76A 12%, var(--surface)); border: 1px dashed #D9B76A; box-shadow: none; }
+  .mg-item{ display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--line); font-size: 13px; line-height: 1.5; }
+  .mg-item:last-child{ border-bottom: none; padding-bottom: 0; }
+  @media (min-width: 760px){
+    .mg{ grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+    .mg-hero, .mg-wide, .mg-consider, .mg-foot{ grid-column: 1 / -1; }
+    .mg-wide .mg-list{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .mg-hero{ padding: 28px 30px; }
+    .mg-title{ font-size: 30px; }
+    .mg-consider{ display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; }
+    .mg-consider .mg-label{ grid-column: 1 / -1; }
+  }
+  .mg-foot{ padding: 16px 18px; border-radius: 16px; background: var(--ink); color: var(--bg); font-size: 13px; line-height: 1.7; }
+
   /* Toolbar */
   .toolbar{ display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
   .toolbar-row{ display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -689,6 +724,74 @@
   @media (prefers-reduced-motion: reduce){
     *, *::before, *::after{ animation-duration: .001ms !important; animation-delay: 0ms !important; transition-duration: .001ms !important; }
   }
+  /* ===== Refresh estilo Apple (mismos colores) ===== */
+  :root{
+    --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+    --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Helvetica, Arial, sans-serif;
+    --shadow-sm: 0 1px 2px rgba(26,29,28,.04);
+    --shadow-md: 0 1px 2px rgba(26,29,28,.04), 0 10px 28px -14px rgba(26,29,28,.16);
+    --seg-track: rgba(118,118,128,.14);
+    --glass: color-mix(in srgb, var(--bg) 78%, transparent);
+  }
+  :root[data-theme="dark"]{
+    --shadow-md: 0 1px 2px rgba(0,0,0,.4), 0 10px 28px -14px rgba(0,0,0,.6);
+    --seg-track: rgba(118,118,128,.28);
+  }
+  body{ font-size: 15px; letter-spacing: -.003em; -webkit-font-smoothing: antialiased; }
+  h1,h2,h3{ font-weight: 700; letter-spacing: -.025em; }
+  .eyebrow{ font-size: 12px; letter-spacing: .08em; }
+  .top h1{ font-size: clamp(34px, 6vw, 48px); line-height: 1.06; letter-spacing: -.03em; }
+  .section-title{ font-size: 24px; font-weight: 700; letter-spacing: -.025em; }
+  .big, .ring-label{ font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .ring-label{ font-size: 26px; }
+  .mg-title{ font-weight: 700; letter-spacing: -.03em; }
+  .modal-title{ font-weight: 700; letter-spacing: -.02em; }
+  .cal-summary b{ font-weight: 700; }
+
+  /* Tabs como control segmentado, fijo arriba con desenfoque */
+  .tabs{
+    position: sticky; top: 10px; z-index: 30;
+    gap: 2px; padding: 3px;
+    background: var(--seg-track); border: none; box-shadow: none;
+    border-radius: 11px;
+    -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px);
+  }
+  .tab{ height: 34px; padding: 0 22px; font-size: 13.5px; font-weight: 500; color: var(--ink); border-radius: 9px; }
+  .tab.active{ background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.14), 0 0 0 .5px rgba(0,0,0,.04); }
+  :root[data-theme="dark"] .tab.active{ background: #3A4543; }
+
+  /* Tarjetas, listas y controles */
+  .progress-card, .add-form, .mg-card, .habit, .modal{ border-color: color-mix(in srgb, var(--line) 70%, transparent); }
+  .progress-card{ border-radius: 22px; box-shadow: var(--shadow-md); }
+  .habit{ border-radius: 18px; box-shadow: var(--shadow-md); }
+  .habit-add{ box-shadow: none; }
+  .mg-card{ border-radius: 20px; box-shadow: var(--shadow-md); }
+  .task{ border-radius: 16px; border-color: color-mix(in srgb, var(--line) 70%, transparent); }
+  .task:hover{ transform: none; box-shadow: var(--shadow-md); border-color: var(--line); }
+  .task .title{ font-size: 15px; letter-spacing: -.01em; }
+  .check .box{ width: 24px; height: 24px; border-radius: 50%; border-width: 1.5px; }
+  .course-tag{ border-radius: 99px; }
+  .type-tag{ border-radius: 99px; }
+  .chip{ border-radius: 99px; font-weight: 500; }
+  .field, .search-box input, .date-filter input[type=date], .add-form input, .add-form select{ border-radius: 10px; background: var(--seg-track); border-color: transparent; }
+  .search-box input{ background: var(--seg-track); }
+  .field:focus, .search-box input:focus, .add-form input:focus, .add-form select:focus{ background: var(--surface); }
+  .btn-primary, .ghost-btn, .add-form button{ border-radius: 11px; }
+  .btn-primary{ font-weight: 600; letter-spacing: -.005em; }
+  .icon-btn{ border-color: transparent; box-shadow: var(--shadow-md); }
+  .modal{ border-radius: 24px; -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
+  .modal-overlay{ background: rgba(0,0,0,.38); }
+  .cal-day{ border-radius: 50%; border-color: transparent; background: var(--seg-track); }
+  .cal-day.done{ background: var(--accent); }
+  .cal-day.today{ box-shadow: 0 0 0 2px var(--ink) inset; }
+
+  /* Botón del asistente: siempre visible, flotante */
+  .fab{ height: 54px; padding: 0 22px 0 18px; font-weight: 600; letter-spacing: -.005em; box-shadow: 0 10px 30px -8px rgba(0,0,0,.35), 0 0 0 .5px rgba(255,255,255,.08) inset; }
+  @media (max-width: 520px){
+    .tabs{ top: 8px; }
+    .top h1{ font-size: 32px; }
+    .fab{ width: 54px; height: 54px; }
+  }
 </style>
 </head>
 <body>
@@ -718,6 +821,7 @@
   <nav class="tabs reveal d1" role="tablist" aria-label="Vistas">
     <button class="tab active" role="tab" data-tab="checklist" aria-selected="true">Checklist</button>
     <button class="tab" role="tab" data-tab="todo" aria-selected="false">To Do <span class="tab-count" id="todoCount" hidden></span></button>
+    <button class="tab" role="tab" data-tab="metas" aria-selected="false">Metas</button>
   </nav>
 
   <div id="viewChecklist">
@@ -802,6 +906,99 @@
 
   <div class="section-title">Completadas <span class="count" id="completedCount">0</span></div>
   <div class="task-list completed" id="completedList"></div>
+  </div>
+
+  <div id="viewMetas" hidden>
+    <div class="mg">
+      <div class="mg-hero">
+        <div class="mg-title">Mis Metas</div>
+        <div class="mg-sub">Nov 1 a fin de diciembre · enfoque en constancia</div>
+        <div class="mg-pills">
+          <span>125 lbs hoy</span><span>comer en casa: día 2</span><span>exámenes esta semana</span>
+        </div>
+      </div>
+
+      <section class="mg-card mg-wide">
+        <div class="mg-label">Cuerpo</div>
+        <div class="mg-list">
+          <div class="mg-goal" style="--t:#0D7A6B">
+            <div class="mg-ico">🏋️</div>
+            <div><div class="mg-gt">Gym hasta fin de diciembre</div>
+              <div class="mg-gs">Retomar la constancia. Una meta realista con exámenes: 3 a 4 veces por semana, y caminata los demás días.</div>
+              <span class="mg-tag">definir días fijos</span></div>
+          </div>
+          <div class="mg-goal" style="--t:#C9772B">
+            <div class="mg-ico">🍲</div>
+            <div><div class="mg-gt">Cocinar y comer en casa</div>
+              <div class="mg-gs">Sin comer por fuera. Única excepción planeada: Thanksgiving.</div>
+              <div class="mg-bar"><i style="width:7%"></i></div>
+              <span class="mg-tag">día 2</span></div>
+          </div>
+          <div class="mg-goal" style="--t:#C8553D">
+            <div class="mg-ico">⚖️</div>
+            <div><div class="mg-gt">Peso: 125 lbs hoy</div>
+              <div class="mg-gs">No subiste mucho aun con menos gym. Falta decidir: ¿mantener en 125 o bajar a 122 para fin de año?</div>
+              <span class="mg-tag">decidir la meta</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mg-card mg-wide">
+        <div class="mg-label">Sueño</div>
+        <div class="mg-sleep">
+          <div><b>11:30 pm</b><span>en la cama, máximo</span></div>
+          <div><b>7:00 am</b><span>despertar</span></div>
+          <div><b>~7.5 hrs</b><span>de sueño</span></div>
+        </div>
+      </section>
+
+      <section class="mg-card">
+        <div class="mg-label">Rutinas y hábitos</div>
+        <div class="mg-list">
+          <div class="mg-goal" style="--t:#2E6C8E">
+            <div class="mg-ico">✨</div>
+            <div><div class="mg-gt">Skincare cada noche</div>
+              <div class="mg-gs">Desmaquillar, lavar la cara y aplicar tus productos antes de dormir, todos los días.</div>
+              <span class="mg-tag">diario</span></div>
+          </div>
+          <div class="mg-goal" style="--t:#3F7D5C">
+            <div class="mg-ico">✝️</div>
+            <div><div class="mg-gt">Escrituras diarias</div>
+              <div class="mg-gs">Tu hábito más sólido. Sigue siendo el ancla del día.</div>
+              <span class="mg-tag">diario</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mg-card">
+        <div class="mg-label">Universidad</div>
+        <div class="mg-list">
+          <div class="mg-goal" style="--t:#C9772B">
+            <div class="mg-ico">📚</div>
+            <div><div class="mg-gt">Exámenes de esta semana</div>
+              <div class="mg-gs">Bloques de estudio fijos en el calendario, empezando por el examen que viene primero.</div>
+              <span class="mg-tag">esta semana</span></div>
+          </div>
+          <div class="mg-goal" style="--t:#0D7A6B">
+            <div class="mg-ico">📝</div>
+            <div><div class="mg-gt">Notas al día y estudio constante</div>
+              <div class="mg-gs">Tiempo regular para repasar cada clase, no solo antes de los exámenes.</div>
+              <span class="mg-tag">semanal</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="mg-card mg-consider">
+        <div class="mg-label">Para considerar agregar</div>
+        <div class="mg-item"><span>🍳</span><div><b>Meal prep del domingo.</b> Es lo que hace posible comer en casa toda la semana sin que se vuelva pesado.</div></div>
+        <div class="mg-item"><span>🕐</span><div><b>Horas de comida.</b> Aun con comida en casa, comer a horas parecidas ayuda con el ánimo y la energía.</div></div>
+        <div class="mg-item"><span>🎵</span><div><b>Algo solo para disfrutar.</b> Ukulele, cantar o salir con amigas, aunque sea una vez al mes.</div></div>
+        <div class="mg-item"><span>💼</span><div><b>Decisión del trabajo.</b> Ponerle una fecha para pensarlo con calma, sin decidir en un día bajo.</div></div>
+        <div class="mg-item"><span>🌿</span><div><b>Una pausa para el estrés.</b> Una caminata corta o 10 minutos sin pantalla en los días pesados.</div></div>
+      </section>
+
+      <div class="mg-foot">Lo más importante de este plan: <b>sueño, comer en casa, escrituras y skincare</b> son los cimientos. Si esos se sostienen, el gym y el estudio tienen más energía para funcionar.</div>
+    </div>
   </div>
 
   <div id="viewTodo" hidden>
@@ -3407,6 +3604,7 @@ function showTab(name){
   currentTab = name;
   document.getElementById("viewChecklist").hidden = name !== "checklist";
   document.getElementById("viewTodo").hidden = name !== "todo";
+  document.getElementById("viewMetas").hidden = name !== "metas";
   document.querySelectorAll(".tab").forEach(t => {
     const on = t.dataset.tab === name;
     t.classList.toggle("active", on);
@@ -3436,7 +3634,7 @@ function setupTodo(){
 
   let saved = "checklist";
   try{ saved = localStorage.getItem("checklist-tab") || "checklist"; }catch(e){}
-  showTab(saved === "todo" ? "todo" : "checklist");
+  showTab(saved === "todo" || saved === "metas" ? saved : "checklist");
   window.scrollTo(0, 0);
 }
 
