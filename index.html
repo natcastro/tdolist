@@ -787,11 +787,80 @@
 
   /* Botón del asistente: siempre visible, flotante */
   .fab{ height: 54px; padding: 0 22px 0 18px; font-weight: 600; letter-spacing: -.005em; box-shadow: 0 10px 30px -8px rgba(0,0,0,.35), 0 0 0 .5px rgba(255,255,255,.08) inset; }
+  .tab{ white-space: nowrap; }
   @media (max-width: 520px){
+    .tab{ padding: 0 8px; gap: 6px; font-size: 13px; }
     .tabs{ top: 8px; }
     .top h1{ font-size: 32px; }
     .fab{ width: 54px; height: 54px; }
   }
+  /* To Do estilo Calendario de Apple */
+  .week-nav{ margin-bottom: 4px; }
+  .week-label{ font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .week-nav .icon-btn.sm{ width: 36px; height: 36px; box-shadow: none; background: var(--seg-track); }
+  .week-nav .ghost-btn{ height: 36px; border: none; background: var(--seg-track); border-radius: 10px; font-weight: 600; }
+  .daystrip{ gap: 2px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .dchip{ gap: 4px; padding: 6px 0 2px; background: none; border: none; border-radius: 12px; }
+  .dchip:hover{ background: var(--seg-track); border: none; }
+  .dchip .dw{ font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+  .dchip .dn{ width: 38px; height: 38px; display: grid; place-items: center; font-family: var(--font-sans); font-size: 20px; font-weight: 500; letter-spacing: -.02em; border-radius: 50%; transition: background-color .2s, color .2s; }
+  .dchip.today:not(.sel){ box-shadow: none; }
+  .dchip.today:not(.sel) .dn{ color: var(--accent); font-weight: 700; }
+  .dchip.sel{ background: none; border: none; color: var(--ink); }
+  .dchip.sel .dw{ opacity: 1; color: var(--ink); }
+  .dchip.sel .dn{ background: var(--ink); color: var(--bg); font-weight: 600; }
+  .dchip.today.sel .dn{ background: var(--accent); color: var(--accent-ink); }
+  .dchip .dc{ position: static; min-width: 5px; width: 5px; height: 5px; padding: 0; font-size: 0; background: var(--ink-soft); }
+  .dchip .dc:empty{ display: block; visibility: hidden; }
+  .day-main h2{ font-size: 36px; letter-spacing: -.03em; }
+  .day-actions{ display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .cal-add{ height: 34px; padding: 0 14px; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: none; border-radius: 99px; }
+  .cal-add:hover{ color: var(--accent); border: none; filter: brightness(.97); }
+  .part{ margin-top: 20px; }
+  .part-head{ padding: 0 2px 8px; margin-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 12.5px; letter-spacing: .02em; text-transform: none; color: var(--ink); font-weight: 700; }
+  .part-head .pt{ font-weight: 500; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .todo-list{ gap: 6px; }
+  .todo-item{ background: color-mix(in srgb, var(--c) 13%, var(--surface)); border: none; border-left: 4px solid var(--c); border-radius: 10px; box-shadow: none; }
+  .todo-item.linked{ border-left: 4px solid var(--c); }
+  .todo-item .ti-title{ color: color-mix(in srgb, var(--c) 75%, var(--ink)); font-weight: 600; }
+  .todo-item.done{ opacity: .5; }
+  .todo-item.done .ti-title{ color: var(--ink-soft); }
+  .side{ border-radius: 20px; box-shadow: var(--shadow-md); border-color: transparent; }
+  .side-item{ border-radius: 10px; border-color: transparent; background: color-mix(in srgb, var(--c) 10%, var(--surface)); border-left: 4px solid var(--c); }
+  .add-row input{ border-radius: 10px; }
+  .add-row button{ border-radius: 10px; }
+  /* Día con horas (estilo Calendario de Apple) */
+  .tray{ margin-top: 14px; padding: 12px 12px 4px; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow-md); transition: outline-color .15s; outline: 2px solid transparent; }
+  .tray.drop-over{ outline-color: var(--accent); }
+  .tray .part-head{ border-bottom: none; padding-bottom: 4px; margin-bottom: 4px; }
+  .tray .add-row{ margin: 6px 0 8px; }
+  .tl{ margin-top: 22px; }
+  .add-top{ margin-top: 16px; }
+  .tl-grid{ position: relative; margin-bottom: 40px; }
+  .tl-hour{ position: absolute; left: 0; right: 0; height: 0; border-top: 1px solid var(--line); }
+  .tl-hour span{ position: absolute; left: 0; top: -8px; width: 44px; padding-right: 8px; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); text-align: right; background: var(--bg); font-variant-numeric: tabular-nums; }
+  .tl-events{ position: absolute; left: 54px; right: 0; top: 0; bottom: 0; margin: 0; padding: 0; list-style: none; }
+  .todo-item.tl-ev{ position: absolute; align-items: flex-start; padding: 6px 4px 4px 2px; overflow: hidden; z-index: 2; border-radius: 8px; box-sizing: border-box; }
+  .todo-item.tl-ev .ti-body{ padding-top: 2px; }
+  .todo-item.tl-ev .ti-title{ font-size: 13.5px; line-height: 1.25; }
+  .todo-item.tl-ev .ti-sub{ display: none; }
+  .todo-item.tl-ev .check{ margin: -10px -6px -10px -8px; transform: scale(.85); }
+  .todo-item.tl-ev .menu-btn{ width: 30px; height: 30px; }
+  .todo-item.tl-ev.menu-open{ overflow: visible; z-index: 30; }
+  .tl-time{ font-size: 11px; font-weight: 600; color: color-mix(in srgb, var(--c) 70%, var(--ink-soft)); font-variant-numeric: tabular-nums; }
+  .tl-now{ position: absolute; left: 48px; right: 0; height: 2px; background: var(--overdue); z-index: 3; pointer-events: none; }
+  .tl-now::before{ content: ""; position: absolute; left: -5px; top: -4px; width: 10px; height: 10px; border-radius: 50%; background: var(--overdue); }
+  .tl-drop{ position: absolute; left: 54px; right: 0; height: calc(60px * 1.1 - 3px); z-index: 4; display: flex; align-items: flex-start; padding: 6px 10px; font-size: 12px; font-weight: 700; color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); border: 2px dashed var(--accent); border-radius: 8px; pointer-events: none; box-sizing: border-box; }
+  .tl-drop[hidden]{ display: none; }
+  .tl-ghost{ position: fixed; left: 0; top: 0; z-index: 300; max-width: 240px; padding: 8px 12px; font-size: 13.5px; font-weight: 600; color: var(--accent-ink); background: var(--accent); border-radius: 10px; box-shadow: var(--shadow-lg); pointer-events: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tl-resize{ position: absolute; left: 0; right: 0; bottom: 0; height: 12px; cursor: ns-resize; touch-action: none; z-index: 3; }
+  .tl-resize::after{ content: ""; position: absolute; left: 50%; bottom: 3px; width: 28px; height: 4px; margin-left: -14px; border-radius: 99px; background: var(--c); opacity: .35; transition: opacity .15s; }
+  .tl-ev:hover .tl-resize::after, .tl-ev.resizing .tl-resize::after{ opacity: .9; }
+  .tl-ev.resizing{ box-shadow: var(--shadow-md); z-index: 20; }
+  .todo-item.tl-ev.short{ padding-top: 2px; padding-bottom: 2px; align-items: center; }
+  .todo-item.tl-ev.short .ti-body{ display: flex; align-items: center; gap: 8px; padding-top: 0; }
+  .todo-item.tl-ev.short .ti-title{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .todo-item.tl-ev.short .check{ margin-top: -12px; margin-bottom: -12px; }
 </style>
 </head>
 <body>
@@ -1023,7 +1092,10 @@
       <section class="day-main" id="dayMain">
         <div class="day-title-row">
           <div><h2 id="dayTitle"></h2><div class="day-sub" id="daySub"></div></div>
-          <div class="day-progress" id="dayProgress"></div>
+          <div class="day-actions">
+            <button type="button" class="ghost-btn cal-add" id="dayCal">Agregar el día al calendario</button>
+            <div class="day-progress" id="dayProgress"></div>
+          </div>
         </div>
         <div class="rollover" id="rolloverBanner" hidden></div>
         <div id="parts"></div>
@@ -3049,6 +3121,7 @@ function addTodoItem(o){
     taskId: o.taskId || null,
     day: o.day,
     part: o.part,
+    time: typeof o.time === "number" ? o.time : null,
     done: false,
     order: (o.index == null ? 9999 : o.index - 0.5)
   };
@@ -3091,6 +3164,203 @@ function updateTodoCount(){
   const n = itemsOf(isoDay(new Date())).filter(i => !isDone(i)).length;
   el.textContent = n;
   el.hidden = n === 0;
+}
+
+// ---- Agregar al calendario (.ics para Apple Calendar / Outlook, o enlace de Google Calendar) ----
+const PART_START = { am: 9, pm: 14, eve: 19 };
+
+function eventSlot(item){
+  if(typeof item.time === "number"){
+    const st = (m) => item.day.replace(/-/g, "") + "T" + (m >= 1440 ? "235900" : String(Math.floor(m / 60)).padStart(2, "0") + String(m % 60).padStart(2, "0") + "00");
+    return { start: st(item.time), end: st(item.time + durOf(item)) };
+  }
+  const same = itemsOf(item.day, item.part);
+  const idx = Math.max(0, same.findIndex(i => i.id === item.id));
+  const h = Math.min(PART_START[item.part] + idx, 22);
+  const stamp = (hh) => item.day.replace(/-/g, "") + "T" + String(hh).padStart(2, "0") + "0000";
+  return { start: stamp(h), end: stamp(h + 1) };
+}
+
+function eventDetails(item){
+  const t = taskOf(item);
+  if(!t) return "";
+  return (COURSE_NAMES[t.course] || courseInfo(t.course).label) + (t.due ? " · vence " + fmtDate(t.due) : "");
+}
+
+function icsText(str){
+  return String(str || "").replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/,/g, "\\,").replace(/;/g, "\\;");
+}
+
+function buildIcs(items){
+  const now = new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d+/, "");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Checklist//ES", "CALSCALE:GREGORIAN"];
+  items.forEach(item => {
+    const slot = eventSlot(item);
+    lines.push("BEGIN:VEVENT", "UID:" + item.id + "@checklist", "DTSTAMP:" + now,
+      "DTSTART:" + slot.start, "DTEND:" + slot.end, "SUMMARY:" + icsText(itemTitle(item)));
+    const d = eventDetails(item);
+    if(d) lines.push("DESCRIPTION:" + icsText(d));
+    lines.push("END:VEVENT");
+  });
+  lines.push("END:VCALENDAR");
+  return lines.join("\r\n");
+}
+
+function downloadIcs(items, name){
+  if(!items.length){ showToast("No hay nada para agregar", null, null); return; }
+  const blob = new Blob([buildIcs(items)], { type: "text/calendar;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name + ".ics";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+
+function googleCalUrl(item){
+  const slot = eventSlot(item);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(itemTitle(item)) +
+    "&dates=" + slot.start + "/" + slot.end + "&details=" + encodeURIComponent(eventDetails(item));
+}
+
+// ---- Línea de tiempo del día (estilo Calendario de Apple) ----
+const TL_START = 6 * 60, TL_END = 24 * 60, TL_PX = 1.1;
+function hasTime(i){ return typeof i.time === "number"; }
+function timeLabel(m){ return Math.floor(m / 60) + ":" + String(m % 60).padStart(2, "0"); }
+function partFromTime(m){ return m < 720 ? "am" : (m < 1080 ? "pm" : "eve"); }
+function clampTime(m, d){ return Math.max(TL_START, Math.min(TL_END - (d || 60), m)); }
+function durOf(i){ return i.dur || 60; }
+
+// Reparte en columnas los eventos que se empalman (cada uno dura 1 h).
+function layoutEvents(list){
+  list.sort((a, b) => a.time - b.time);
+  const out = [];
+  let cluster = [], clusterEnd = -1;
+  const flush = () => {
+    const cols = [];
+    cluster.forEach(ev => {
+      let c = cols.findIndex(end => end <= ev.time);
+      if(c < 0){ c = cols.length; cols.push(0); }
+      cols[c] = ev.time + ev.dur;
+      ev.col = c;
+    });
+    cluster.forEach(ev => { ev.cols = cols.length; });
+    out.push(...cluster);
+    cluster = [];
+  };
+  list.forEach(ev => {
+    if(cluster.length && ev.time >= clusterEnd) flush();
+    cluster.push(ev);
+    clusterEnd = Math.max(clusterEnd, ev.time + ev.dur);
+  });
+  if(cluster.length) flush();
+  return out;
+}
+
+// Estirar o encoger un evento desde su borde inferior (de 15 en 15 min, mínimo 30 min).
+function startResize(item, li, e){
+  if(e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const top = li.getBoundingClientRect().top;
+  let dur = durOf(item);
+  li.classList.add("resizing");
+  const move = (ev) => {
+    dur = Math.max(30, Math.min(TL_END - item.time, Math.round(((ev.clientY - top) / TL_PX) / 15) * 15));
+    li.style.height = (dur * TL_PX - 3) + "px";
+    li.classList.toggle("short", dur < 60);
+  };
+  const scroller = setInterval(() => {
+    if(lastY < 90) window.scrollBy(0, -14);
+    else if(lastY > window.innerHeight - 90) window.scrollBy(0, 14);
+  }, 16);
+  let lastY = e.clientY;
+  const track = (ev) => { lastY = ev.clientY; move(ev); };
+  const end = async (save) => {
+    document.removeEventListener("pointermove", track);
+    document.removeEventListener("pointerup", up);
+    document.removeEventListener("pointercancel", cancel);
+    clearInterval(scroller);
+    li.classList.remove("resizing");
+    if(save && dur !== durOf(item)){
+      item.dur = dur;
+      await saveTodo();
+    }
+    renderTodo();
+  };
+  const up = () => end(true);
+  const cancel = () => end(false);
+  document.addEventListener("pointermove", track);
+  document.addEventListener("pointerup", up);
+  document.addEventListener("pointercancel", cancel);
+}
+
+// Arrastre con puntero: suéltalo en la línea de tiempo (hora), en un día de arriba o en "Sin hora".
+function startTimeDrag(item, li, e){
+  if(e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  const grid = document.getElementById("tlGrid");
+  const ghost = document.createElement("div");
+  ghost.className = "tl-ghost";
+  ghost.textContent = itemTitle(item);
+  document.body.appendChild(ghost);
+  const marker = document.createElement("div");
+  marker.className = "tl-drop";
+  marker.hidden = true;
+  grid.appendChild(marker);
+  li.classList.add("drag-ghost");
+  let target = null, lastY = e.clientY;
+  const clear = () => {
+    document.querySelectorAll(".dchip.drop-over").forEach(c => c.classList.remove("drop-over"));
+    marker.hidden = true;
+  };
+  const move = (ev) => {
+    lastY = ev.clientY;
+    ghost.style.transform = "translate(" + (ev.clientX + 12) + "px," + (ev.clientY - 16) + "px)";
+    clear();
+    target = null;
+    const el = document.elementFromPoint(ev.clientX, ev.clientY);
+    const chip = el && el.closest(".dchip");
+    const r = grid.getBoundingClientRect();
+    if(chip){
+      chip.classList.add("drop-over");
+      target = { type: "day", day: chip.dataset.day };
+    }else if(ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom){
+      const min = clampTime(TL_START + Math.round(((ev.clientY - r.top - 20) / TL_PX) / 15) * 15, durOf(item));
+      marker.style.height = (durOf(item) * TL_PX - 3) + "px";
+      marker.hidden = false;
+      marker.style.top = ((min - TL_START) * TL_PX) + "px";
+      marker.textContent = timeLabel(min);
+      target = { type: "time", min };
+    }
+  };
+  const scroller = setInterval(() => {
+    if(lastY < 90) window.scrollBy(0, -14);
+    else if(lastY > window.innerHeight - 90) window.scrollBy(0, 14);
+  }, 16);
+  const finish = async (apply) => {
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("pointerup", up);
+    document.removeEventListener("pointercancel", cancel);
+    clearInterval(scroller);
+    clear();
+    ghost.remove();
+    marker.remove();
+    li.classList.remove("drag-ghost");
+    if(!apply || !target) return;
+    if(target.type === "time"){ item.time = target.min; item.part = partFromTime(target.min); }
+    else if(target.type === "day"){ moveItemToDay(item.id, target.day); }
+    renumber();
+    await saveTodo();
+    renderTodo();
+  };
+  const up = () => finish(true);
+  const cancel = () => finish(false);
+  document.addEventListener("pointermove", move);
+  document.addEventListener("pointerup", up);
+  document.addEventListener("pointercancel", cancel);
+  move(e);
 }
 
 function renderTodo(){
@@ -3332,6 +3602,8 @@ function todoItemEl(item){
   };
   if(!t) mk("", "pencil", "Editar", () => { editingItemId = item.id; renderTodo(); });
   mk("", "calendar", "Mover a otro día…", () => openMove(item.id));
+  mk("", "calendar", "Agregar al calendario (Apple)", () => downloadIcs([item], "evento"));
+  mk("", "external", "Agregar a Google Calendar", () => window.open(googleCalUrl(item), "_blank", "noopener"));
   mk("danger", "trash", "Quitar del día", async () => {
     todoState.items = todoState.items.filter(i => i !== item);
     renumber();
@@ -3410,48 +3682,103 @@ function renderDay(){
     e.textContent = "Nada planeado para este día. Escribe algo abajo o elige tareas del panel de pendientes.";
     parts.appendChild(e);
   }
-  PARTS.forEach(p => {
-    const sec = document.createElement("section");
-    sec.className = "part";
-    const list = itemsOf(todoDay, p.id);
-    const head = document.createElement("div");
-    head.className = "part-head";
-    head.innerHTML = icon(p.icon, 16) + "<span>" + p.label + "</span><span class=\"n\">" + (list.length ? list.filter(i => !isDone(i)).length + "/" + list.length : "") + "</span>";
-    const ul = document.createElement("ul");
-    ul.className = "todo-list";
-    ul.dataset.part = p.id;
-    ul.setAttribute("aria-label", p.label);
-    list.forEach(it => ul.appendChild(todoItemEl(it)));
-
-    const form = document.createElement("form");
-    form.className = "add-row";
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "Agregar a la " + (p.id === "eve" ? "noche" : p.label.toLowerCase()) + "…";
-    input.setAttribute("aria-label", "Agregar a " + p.label);
-    input.dataset.part = p.id;
-    input.enterKeyHint = "done";
-    input.autocomplete = "off";
-    const submit = document.createElement("button");
-    submit.type = "submit";
-    submit.setAttribute("aria-label", "Agregar");
-    submit.innerHTML = icon("plus", 18);
-    form.appendChild(input);
-    form.appendChild(submit);
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      const v = input.value.trim();
-      if(!v) return;
-      addTodoItem({ title: v, day: todoDay, part: p.id });
-      focusPart = p.id;
-      await saveTodo();
-      renderTodo();
-    };
-    sec.appendChild(head);
-    sec.appendChild(ul);
-    sec.appendChild(form);
-    parts.appendChild(sec);
+  // Las tareas sin hora se colocan solas en el calendario (según Mañana/Tarde/Noche) y luego las acomodas arrastrando.
+  let placed = false;
+  its.filter(i => !hasTime(i)).forEach(it => {
+    const taken = new Set(its.filter(hasTime).map(i => i.time));
+    let m = (PART_START[it.part] || 9) * 60;
+    for(let n = 0; taken.has(m) && n < 40; n++){ m += 60; if(m > TL_END - 60) m = TL_START; }
+    it.time = m;
+    placed = true;
   });
+  if(placed) saveTodo();
+  const timed = its;
+
+  const form = document.createElement("form");
+  form.className = "add-row add-top";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Agregar tarea…";
+  input.setAttribute("aria-label", "Agregar tarea");
+  input.dataset.part = "tray";
+  input.enterKeyHint = "done";
+  input.autocomplete = "off";
+  const submit = document.createElement("button");
+  submit.type = "submit";
+  submit.setAttribute("aria-label", "Agregar");
+  submit.innerHTML = icon("plus", 18);
+  form.appendChild(input);
+  form.appendChild(submit);
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const v = input.value.trim();
+    if(!v) return;
+    addTodoItem({ title: v, day: todoDay, part: defaultPart(todoDay) });
+    focusPart = "tray";
+    await saveTodo();
+    renderTodo();
+  };
+  parts.appendChild(form);
+
+  const tl = document.createElement("section");
+  tl.className = "tl";
+  const grid = document.createElement("div");
+  grid.className = "tl-grid";
+  grid.id = "tlGrid";
+  grid.style.height = ((TL_END - TL_START) * TL_PX) + "px";
+  for(let h = TL_START / 60; h < TL_END / 60; h++){
+    const row = document.createElement("div");
+    row.className = "tl-hour";
+    row.style.top = ((h * 60 - TL_START) * TL_PX) + "px";
+    row.innerHTML = "<span>" + h + ":00</span>";
+    grid.appendChild(row);
+  }
+  const evs = document.createElement("ul");
+  evs.className = "tl-events";
+  layoutEvents(timed.map(i => ({ item: i, time: i.time, dur: durOf(i) }))).forEach(ev => {
+    const li = todoItemEl(ev.item);
+    li.classList.add("tl-ev");
+    li.style.top = ((ev.time - TL_START) * TL_PX + 1) + "px";
+    li.style.height = (ev.dur * TL_PX - 3) + "px";
+    if(ev.dur < 60) li.classList.add("short");
+    li.style.left = (ev.col / ev.cols * 100) + "%";
+    li.style.width = "calc(" + (100 / ev.cols) + "% - 4px)";
+    const body = li.querySelector(".ti-body");
+    if(body){
+      const tm = document.createElement("div");
+      tm.className = "tl-time";
+      tm.textContent = timeLabel(ev.time);
+      body.insertBefore(tm, body.firstChild);
+    }
+    const g = li.querySelector(".grip");
+    if(g) g.onpointerdown = (e) => startTimeDrag(ev.item, li, e);
+    const rz = document.createElement("div");
+    rz.className = "tl-resize";
+    rz.setAttribute("aria-hidden", "true");
+    rz.onpointerdown = (e) => startResize(ev.item, li, e);
+    li.appendChild(rz);
+    evs.appendChild(li);
+  });
+  grid.appendChild(evs);
+  const nowD = new Date();
+  const nowMin = nowD.getHours() * 60 + nowD.getMinutes();
+  if(todoDay === today && nowMin >= TL_START && nowMin < TL_END){
+    const now = document.createElement("div");
+    now.className = "tl-now";
+    now.style.top = ((nowMin - TL_START) * TL_PX) + "px";
+    grid.appendChild(now);
+  }
+  grid.onclick = async (e) => {
+    if(e.target.closest(".todo-item")) return;
+    const r = grid.getBoundingClientRect();
+    const min = clampTime(TL_START + Math.floor(((e.clientY - r.top) / TL_PX) / 15) * 15);
+    const it = addTodoItem({ title: "Nuevo", day: todoDay, part: partFromTime(min), time: min });
+    editingItemId = it.id;
+    await saveTodo();
+    renderTodo();
+  };
+  tl.appendChild(grid);
+  parts.appendChild(tl);
   if(focusPart){
     const inp = parts.querySelector('input[data-part="' + focusPart + '"]');
     if(inp) inp.focus({ preventScroll: true });
@@ -3466,7 +3793,7 @@ function readOrderFromDom(){
     ul.querySelectorAll(":scope > .todo-item").forEach(li => {
       const it = todoState.items.find(i => i.id === li.dataset.id);
       if(!it) return;
-      it.part = ul.dataset.part;
+      if(ul.dataset.part) it.part = ul.dataset.part;
       it.day = todoDay;
       it.order = idx++;
     });
@@ -3505,14 +3832,14 @@ function setupTodoSortables(){
 
   document.querySelectorAll("#parts .todo-list").forEach(ul => {
     todoSortables.push(Sortable.create(ul, Object.assign({}, base, {
-      group: "todo",
-      handle: ".grip",
-      draggable: ".todo-item",
+      group: { name: "todo", pull: false, put: true },
+      sort: false,
+      draggable: ".side-item",
       onAdd: (evt) => {
         const el = evt.item;
         if(el.classList.contains("side-item")){
           const taskId = el.dataset.taskId;
-          const part = ul.dataset.part;
+          const part = ul.dataset.part || defaultPart(todoDay);
           const idx = evt.newIndex;
           el.remove();
           const exists = todoState.items.find(i => i.taskId === taskId && i.day === todoDay);
@@ -3628,6 +3955,7 @@ function setupTodo(){
   };
   document.getElementById("sideToggle").onclick = () => { sideOpen = !sideOpen; renderTodo(); };
   document.getElementById("sideSearch").oninput = (e) => { sideQuery = e.target.value; renderSide(); setupTodoSortables(); };
+  document.getElementById("dayCal").onclick = () => downloadIcs(itemsOf(todoDay), "dia-" + todoDay);
   document.getElementById("moveClose").onclick = closeMove;
   document.getElementById("moveModal").onclick = (e) => { if(e.target.id === "moveModal") closeMove(); };
   document.addEventListener("keydown", (e) => { if(e.key === "Escape") closeMove(); });
