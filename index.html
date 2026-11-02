@@ -185,6 +185,20 @@
   .habit-bar{ grid-area: bar; height: 4px; background: var(--line); border-radius: 99px; overflow: hidden; margin-top: 4px; }
   .habit-bar i{ display: block; height: 100%; background: var(--accent); border-radius: 99px; transition: width .7s var(--ease); }
   .habit.met .habit-ic{ background: var(--accent); color: var(--accent-ink); }
+  .habit-add{ display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 84px; border-style: dashed; color: var(--ink-soft); font-size: 12.5px; font-family: inherit; }
+  .habit-add:hover{ color: var(--accent); border-color: var(--accent); }
+  .goal-edit-btn{ width: 100%; margin-top: 14px; }
+  .goal-edit-btn:hover{ border-color: var(--accent); color: var(--accent); }
+  .ge-form{ display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+  .ge-lbl{ display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--ink-soft); }
+  .ge-lbl .field{ width: 100%; }
+  .ge-hint{ font-size: 12px; color: var(--ink-soft); line-height: 1.5; margin-top: -6px; }
+  .ge-icons{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .ge-icons button{ width: 40px; height: 40px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink-soft); cursor: pointer; }
+  .ge-icons button.on{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .habit-dots{ grid-area: bar; display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-top: 4px; }
+  .habit-dots i{ height: 4px; border-radius: 99px; background: var(--line); }
+  .habit-dots i.on{ background: var(--accent); }
 
   /* Toolbar */
   .toolbar{ display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
@@ -343,16 +357,16 @@
   .cal-nav button{ width: 36px; height: 36px; background: none; border: 1px solid var(--line-strong); border-radius: 10px; color: var(--ink-soft); cursor: pointer; font-size: 15px; transition: border-color .2s, color .2s; }
   .cal-nav button:hover{ border-color: var(--ink-soft); color: var(--ink); }
   .cal-month{ font-size: 14px; font-weight: 600; text-transform: capitalize; }
-  .cal-grid{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal-grid{ display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
   .cal-dow{ font-size: 10.5px; font-weight: 600; text-align: center; color: var(--ink-soft); }
-  .cal-day{ aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: background-color .2s, border-color .2s, transform .15s var(--ease); }
+  .cal-day{ aspect-ratio: 1; min-width: 0; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--ink-soft); border: 1px solid var(--line); border-radius: 10px; cursor: pointer; transition: background-color .2s, border-color .2s, transform .15s var(--ease); }
   .cal-day:hover{ border-color: var(--accent); }
   .cal-day:active{ transform: scale(.92); }
-  .cal-day.empty{ visibility: hidden; cursor: default; }
+  .cal-day.empty{ visibility: hidden; cursor: default; padding: 0; border: 0; text-align: initial; }
   .cal-day.done{ background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 700; }
   .cal-day.today{ box-shadow: 0 0 0 1.5px var(--ink) inset; }
-  .cal-summary{ display: flex; justify-content: space-between; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 13px; color: var(--ink-soft); }
-  .cal-summary b{ font-family: var(--font-serif); font-size: 18px; color: var(--ink); }
+  .cal-summary{ display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--ink-soft); text-align: center; }
+  .cal-summary b{ display: block; font-family: var(--font-serif); font-size: 22px; line-height: 1.2; color: var(--ink); }
 
   /* Lock screen */
   #lockOverlay{ position: fixed; inset: 0; z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--bg); }
@@ -866,9 +880,35 @@
     <div class="cal-grid" id="mDow"></div>
     <div class="cal-grid" id="mGrid" style="margin-top:6px;"></div>
     <div class="cal-summary">
-      <div>Este mes: <b id="mMonthCount">0</b></div>
-      <div>Esta semana: <b id="mWeekCount">0</b></div>
+      <div>Racha actual<b id="mStreak">0</b></div>
+      <div>Mejor racha<b id="mBest">0</b></div>
+      <div>Este mes<b id="mMonthCount">0</b></div>
     </div>
+    <button type="button" class="ghost-btn goal-edit-btn" id="mEdit">Editar meta</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="goalEditModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="geTitle">
+    <div class="modal-head">
+      <div class="modal-title" id="geTitle">Nueva meta</div>
+      <button class="modal-close" id="geClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <form id="geForm" class="ge-form" autocomplete="off">
+      <label class="ge-lbl">Nombre<input class="field" id="geName" type="text" maxlength="30" placeholder="Ej. Correr" required></label>
+      <label class="ge-lbl">Días por semana que debes cumplir
+        <select class="field" id="gePer">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7 (todos los días)</option>
+        </select>
+      </label>
+      <label class="ge-lbl">Palabras clave (separadas por coma)<input class="field" id="geKeys" type="text" placeholder="Ej. gym, entrenar"></label>
+      <div class="ge-hint">Al completar una tarea (checklist o To Do) cuyo título contenga una de estas palabras, el día se marca solo.</div>
+      <div class="ge-lbl">Ícono<div class="ge-icons" id="geIcons"></div></div>
+      <div class="p-actions">
+        <button type="submit" class="btn-primary">Guardar</button>
+        <button type="button" class="ghost-btn" id="geDelete">Eliminar</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -1142,18 +1182,14 @@ function seedTasks(){
   }));
 }
 
-const GOALS = [
-  { id:"gym", icon:"dumbbell", label:"Gym", target:"4-5 / semana", weeklyTarget:5,
-    note:"Lun-jue en la tarde si hay energía. Viernes en la mañana. Un día de fin de semana." },
-  { id:"scriptures", icon:"book", label:"Escrituras", target:"7 / semana", weeklyTarget:7,
-    note:"Todos los días, sin excepciones. Es el hábito más sólido, no lo sueltes." },
-  { id:"meals", icon:"utensils", label:"Comidas a tiempo", target:"7 / semana", weeklyTarget:7,
-    note:"Desayuno 7:30am · almuerzo 12pm · cena 6pm. El domingo preparas lo de la semana." },
-  { id:"work", icon:"briefcase", label:"Trabajo", target:"10-15 hrs / semana", weeklyTarget:5,
-    note:"Bloques fijos en el calendario, como si fueran clases, no dispersos." },
-  { id:"skincare", icon:"sparkles", label:"Skincare", target:"3-4 / semana", weeklyTarget:4,
-    note:"Rutina completa 3-4 días. Los demás: limpieza básica. Nada de cero." },
+// Metas con racha. perWeek = días por semana que debes cumplir (7 = racha diaria normal).
+// keywords: si completas una tarea (checklist o To Do) que contenga alguna, se marca el día automáticamente.
+const DEFAULT_GOALS = [
+  { id:"gym", icon:"dumbbell", label:"Gym", perWeek:4, keywords:["gym"] },
+  { id:"scriptures", icon:"book", label:"Escrituras", perWeek:7, keywords:["escrituras"] },
 ];
+let GOALS = DEFAULT_GOALS.map(g => Object.assign({}, g, { keywords: g.keywords.slice() }));
+const GOAL_ICONS = ["dumbbell","book","utensils","briefcase","sparkles","sun","moon","calendar","check","pencil"];
 
 const COURSE_NAMES = {
   HRM540: "HRM 540: Organizational Effectiveness",
@@ -1442,6 +1478,7 @@ async function loadHabits(silent){
   if(CLOUD_ENABLED && cloudRow && cloudRow.habits && Object.keys(cloudRow.habits).length) h = cloudRow.habits;
   if(!h) h = lsRead("checklist-habits");
   habitLogs = h || {};
+  if(Array.isArray(habitLogs.__goals)) GOALS = habitLogs.__goals;
   GOALS.forEach(g => { if(!habitLogs[g.id]) habitLogs[g.id] = []; });
   todoState = (habitLogs.__todo && Array.isArray(habitLogs.__todo.items)) ? habitLogs.__todo : { items: [] };
   if(!silent) await saveHabits();
@@ -1478,6 +1515,54 @@ function countThisWeek(goalId){
     const d = new Date(ds+"T00:00:00");
     return d >= mon && d <= sun;
   }).length;
+}
+
+// Racha con meta de N días por semana (lun-dom): puedes fallar hasta 7-N días en la semana sin perderla.
+// Al pasar ese límite la racha vuelve a 0. Con 7/semana es una racha diaria normal.
+// Si hoy aún no está marcado, no cuenta como falla hasta que termine el día.
+function streakInfo(goalId){
+  const goal = GOALS.find(g => g.id === goalId);
+  const allowed = 7 - (goal ? goal.perWeek : 7);
+  const set = new Set(habitLogs[goalId] || []);
+  const todayStr = isoDay(new Date());
+  const doneToday = set.has(todayStr);
+  const first = Array.from(set).sort()[0];
+  if(!first) return { current: 0, best: 0, doneToday };
+  let current = 0, best = 0, misses = 0;
+  for(const d = new Date(first + "T00:00:00"); isoDay(d) <= todayStr; d.setDate(d.getDate() + 1)){
+    if(d.getDay() === 1) misses = 0;
+    const ds = isoDay(d);
+    if(set.has(ds)){
+      current++;
+      if(current > best) best = current;
+    }else if(ds !== todayStr){
+      misses++;
+      if(misses > allowed){ current = 0; misses = 0; }
+    }
+  }
+  return { current, best, doneToday };
+}
+
+function norm(str){ return (str || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+
+// Marca hoy en las metas cuyo texto clave aparece en el título completado.
+async function autoLogGoals(title){
+  const n = norm(title);
+  const today = isoDay(new Date());
+  let changed = false;
+  GOALS.forEach(g => {
+    if((g.keywords || []).some(k => k && n.includes(norm(k))) && !habitLogs[g.id].includes(today)){
+      habitLogs[g.id].push(today);
+      changed = true;
+    }
+  });
+  if(changed) await saveHabits();
+  return changed;
+}
+
+async function saveGoals(){
+  habitLogs.__goals = GOALS;
+  await saveHabits();
 }
 
 function countInMonth(goalId, year, month){
@@ -1651,20 +1736,32 @@ function renderHabits(){
   const row = document.getElementById("kpiRow");
   row.innerHTML = "";
   GOALS.forEach(goal => {
-    const week = countThisWeek(goal.id);
-    const pct = Math.min(100, week / goal.weeklyTarget * 100);
+    const st = streakInfo(goal.id);
+    const logs = new Set(habitLogs[goal.id] || []);
+    let dots = "";
+    for(let i=6;i>=0;i--){
+      const d = new Date(); d.setDate(d.getDate()-i);
+      dots += '<i' + (logs.has(isoDay(d)) ? ' class="on"' : '') + '></i>';
+    }
     const card = document.createElement("button");
     card.type = "button";
-    card.className = "habit" + (week >= goal.weeklyTarget ? " met" : "");
-    card.setAttribute("aria-label", goal.label + ": " + week + " de " + goal.weeklyTarget + " esta semana");
+    card.className = "habit" + (st.doneToday ? " met" : "");
+    card.setAttribute("aria-label", goal.label + ": racha de " + st.current + (st.current === 1 ? " día" : " días"));
     card.innerHTML =
       '<span class="habit-ic">' + icon(goal.icon, 18) + '</span>' +
-      '<span class="habit-count"><b>' + week + '</b>/' + goal.weeklyTarget + '</span>' +
+      '<span class="habit-count"><b>' + st.current + '</b> ' + (st.current === 1 ? 'día' : 'días') + '</span>' +
       '<span class="habit-name">' + goal.label + '</span>' +
-      '<span class="habit-bar"><i style="width:' + pct + '%"></i></span>';
+      '<span class="habit-dots">' + dots + '</span>';
     card.onclick = () => openGoalModal(goal.id);
     row.appendChild(card);
   });
+  const add = document.createElement("button");
+  add.type = "button";
+  add.className = "habit habit-add";
+  add.setAttribute("aria-label", "Agregar meta");
+  add.innerHTML = icon("plus", 18) + '<span>Nueva meta</span>';
+  add.onclick = () => openGoalEdit(null);
+  row.appendChild(add);
 }
 
 function renderKpis(){
@@ -1693,8 +1790,11 @@ function renderModal(){
 
   document.getElementById("mIcon").innerHTML = icon(goal.icon, 18);
   document.getElementById("mLabel").textContent = goal.label;
-  document.getElementById("mTarget").textContent = "Meta: " + goal.target;
-  document.getElementById("mNote").textContent = goal.note;
+  document.getElementById("mTarget").textContent = "Meta: " + (goal.perWeek === 7 ? "todos los días" : goal.perWeek + (goal.perWeek === 1 ? " día" : " días") + " por semana");
+  document.getElementById("mNote").textContent = (goal.perWeek === 7
+    ? "Si fallas un día, la racha vuelve a 0."
+    : "Puedes fallar hasta " + (7 - goal.perWeek) + (7 - goal.perWeek === 1 ? " día" : " días") + " por semana. Si fallas más, la racha vuelve a 0.")
+    + ((goal.keywords || []).length ? " Se marca sola al completar tareas con: " + goal.keywords.join(", ") + "." : "");
 
   const monthNames = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
   document.getElementById("mMonthLabel").textContent = monthNames[modalMonth] + " " + modalYear;
@@ -1743,7 +1843,91 @@ function renderModal(){
   }
 
   document.getElementById("mMonthCount").textContent = countInMonth(goal.id, modalYear, modalMonth);
-  document.getElementById("mWeekCount").textContent = countThisWeek(goal.id) + "/" + goal.weeklyTarget;
+  const st = streakInfo(goal.id);
+  document.getElementById("mStreak").textContent = st.current;
+  document.getElementById("mBest").textContent = st.best;
+}
+
+let aiCompletedTitles = [];
+let editingGoalId = null;
+let editingIcon = GOAL_ICONS[0];
+
+function renderGeIcons(){
+  const box = document.getElementById("geIcons");
+  box.innerHTML = "";
+  GOAL_ICONS.forEach(name => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = name === editingIcon ? "on" : "";
+    b.setAttribute("aria-label", name);
+    b.innerHTML = icon(name, 18);
+    b.onclick = () => { editingIcon = name; renderGeIcons(); };
+    box.appendChild(b);
+  });
+}
+
+function openGoalEdit(goalId){
+  editingGoalId = goalId;
+  const g = GOALS.find(x => x.id === goalId);
+  document.getElementById("geTitle").textContent = g ? "Editar meta" : "Nueva meta";
+  document.getElementById("geName").value = g ? g.label : "";
+  document.getElementById("gePer").value = g ? g.perWeek : 7;
+  document.getElementById("geKeys").value = g ? (g.keywords || []).join(", ") : "";
+  document.getElementById("geDelete").style.display = g ? "" : "none";
+  editingIcon = g ? g.icon : GOAL_ICONS[0];
+  renderGeIcons();
+  document.getElementById("goalEditModal").classList.add("open");
+  setTimeout(() => document.getElementById("geName").focus(), 50);
+}
+
+function closeGoalEdit(){
+  document.getElementById("goalEditModal").classList.remove("open");
+  editingGoalId = null;
+}
+
+function setupGoalEdit(){
+  document.getElementById("geClose").onclick = closeGoalEdit;
+  document.getElementById("goalEditModal").onclick = (e) => { if(e.target.id === "goalEditModal") closeGoalEdit(); };
+  document.getElementById("mEdit").onclick = () => { const id = modalGoalId; closeGoalModal(); openGoalEdit(id); };
+  document.getElementById("geForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const label = document.getElementById("geName").value.trim();
+    if(!label) return;
+    const data = {
+      label,
+      icon: editingIcon,
+      perWeek: Number(document.getElementById("gePer").value),
+      keywords: document.getElementById("geKeys").value.split(",").map(k => k.trim()).filter(Boolean)
+    };
+    const g = GOALS.find(x => x.id === editingGoalId);
+    if(g) Object.assign(g, data);
+    else{
+      const id = "g-" + Date.now().toString(36);
+      GOALS.push(Object.assign({ id }, data));
+      habitLogs[id] = [];
+    }
+    await saveGoals();
+    closeGoalEdit();
+    renderKpis();
+  };
+  document.getElementById("geDelete").onclick = async () => {
+    const g = GOALS.find(x => x.id === editingGoalId);
+    if(!g) return;
+    const btn = document.getElementById("geDelete");
+    if(!btn.dataset.sure){
+      btn.dataset.sure = "1";
+      btn.textContent = "¿Seguro? Toca otra vez";
+      setTimeout(() => { delete btn.dataset.sure; btn.textContent = "Eliminar"; }, 3500);
+      return;
+    }
+    delete btn.dataset.sure;
+    btn.textContent = "Eliminar";
+    GOALS = GOALS.filter(x => x !== g);
+    delete habitLogs[g.id];
+    await saveGoals();
+    closeGoalEdit();
+    renderKpis();
+  };
 }
 
 function openTaskModal(t){
@@ -1882,6 +2066,7 @@ function taskEl(t, idx, animate){
   check.appendChild(box);
   cb.onchange = async () => {
     t.completed = cb.checked;
+    if(cb.checked) await autoLogGoals(t.title);
     row.classList.add("completing");
     await new Promise(r => setTimeout(r, REDUCED_MOTION ? 0 : 320));
     await saveTasks();
@@ -2432,6 +2617,7 @@ async function aiApply(items, card){
     }else if(i.action === "todo_done"){
       const linked = taskOf(i.todo);
       if(linked) linked.completed = true; else i.todo.done = true;
+      aiCompletedTitles.push(itemTitle(i.todo));
       touchedTodo = true;
     }else if(i.action === "todo_remove"){
       todoState.items = todoState.items.filter(x => x !== i.todo);
@@ -2443,12 +2629,14 @@ async function aiApply(items, card){
       Object.assign(i.target, i.patch);
     }else if(i.action === "complete"){
       i.target.completed = true;
+      aiCompletedTitles.push(i.target.title);
     }else if(i.action === "delete"){
       tasks = tasks.filter(t => t !== i.target);
       if(deletedIds.indexOf(i.target.id) < 0) deletedIds.push(i.target.id);
     }
     n++;
   });
+  for(const title of aiCompletedTitles.splice(0)) await autoLogGoals(title);
   await saveTasks();
   if(touchedTodo) await saveTodo();
   renderKpis();
@@ -2866,6 +3054,7 @@ function todoItemEl(item){
   check.appendChild(cb);
   check.appendChild(box);
   cb.onchange = async () => {
+    if(cb.checked) await autoLogGoals(itemTitle(item));
     if(t){
       t.completed = cb.checked;
       await saveTasks();
@@ -3291,6 +3480,7 @@ async function init(){
   renderFilters();
   setupAddForm();
   setupModal();
+  setupGoalEdit();
   const searchInput = document.getElementById("searchInput");
   const searchClear = document.getElementById("searchClear");
   const isPhone = () => window.matchMedia("(max-width: 760px)").matches;
